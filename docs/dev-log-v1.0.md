@@ -1,0 +1,57 @@
+# 개발 일지 (Development Log) - v1.0
+
+## 상태 (Status)
+- [x] 초기화 (Initialization)
+- [x] 프론트엔드 구현 (Frontend Implementation)
+    - [x] StartScreen
+    - [x] QuizScreen
+    - [x] SummaryScreen
+- [x] 백엔드 구현 (Backend Implementation)
+- [x] 통합 및 테스트 (Integration & Testing)
+
+## 일지 항목 (Log Entries)
+
+### 2026-01-16 - 핵심 기능 구현 및 트러블슈팅
+- **백엔드 구축 (Python/FastAPI)**
+    - Python 3.14 호환성 문제로 3.11로 다운그레이드 및 환경 재설정.
+    - `spaCy` 모델(`en_core_web_sm`) 다운로드 및 NLP 분석 로직 구현.
+    - API 엔드포인트 `/api/analyze-passage` 구현 (CORS 설정 포함).
+
+- **프론트엔드 구현 (React/Vite)**
+    - **QuizScreen 구현**:
+        - 문장별 Root/Subject 찾기 단계별 로직 구현.
+        - 토큰 클릭 인터랙션 및 정답/오답 피드백(품사 기반 힌트) 시스템 구축.
+        - UI 개선: 문장 카운터(Current/Total) 추가, 태블릿 대응 스크롤 뷰포트 최적화.
+    - **UI/UX 개선 (2차)**:
+        - 지시문 상단 배치 (시험 문제 스타일).
+        - 버튼 스타일 개선 (둥근 사각형, '이전 문장' 텍스트 변경).
+        - 모든 블록 수평 정렬 통일 (좌/우 경계 일치).
+        - 지시문/본문 블록 패딩 통일.
+        - ROOT 정답 시 자동으로 SUBJECT 단계 전환 (1초 딜레이).
+    - **SummaryScreen 구현**:
+        - 전체/Root/Subject 정확도 표시 (원형 스코어 UI).
+        - 등급 표시 (이모지 + 메시지: 🏆완벽해요, 👏잘했어요, 💪조금만 더, 📚다시 도전).
+        - 틀린 문장 목록 (동사/주어 오답 뱃지).
+        - "새로운 지문으로 시작하기" 버튼.
+    - **트러블슈팅**:
+        - `App.jsx` 내 `StartScreen` import 누락으로 인한 빈 화면 오류 수정.
+        - `QuizScreen`의 복잡한 상태 관리 로직 안정화.
+
+- **세션 및 DB 구현**
+    - **백엔드 DB 구축**:
+        - SQLite 스키마 생성 (`db/database.py`): `sessions`, `progress` 테이블.
+        - 세션 API 엔드포인트 (`main.py`): `POST /api/sessions`, `GET /api/sessions/{id}`, `PUT /api/sessions/{id}/progress`.
+    - **프론트엔드 세션 관리**:
+        - `services/api.js`: API 호출 모듈화 및 localStorage 헬퍼 함수.
+        - `App.jsx`: 세션 저장/복원 로직 (useEffect로 세션 복원, 문장 완료 시 API 저장).
+        - `QuizScreen.jsx`: savedProgress props 연동으로 저장된 진행 상황 반영.
+
+### 2026-01-15 - 프로젝트 착수 및 설계
+- **기획 및 설계**
+    - `VerbGravity` 프로젝트 핵심 가치("능동적 탐색과 즉각적 교정") 정립.
+    - UI/UX 와이어프레임 및 아이패드용 디자인 목업 검증.
+    - 기술 스택 확정 (Vite + React, FastAPI + spaCy).
+- **프로젝트 초기화**
+    - Git 저장소 초기화 및 디렉토리 구조(`client`, `server`, `docs`) 생성.
+    - Vite 프로젝트 생성 및 공통 디자인 시스템(`index.css`) 적용.
+    - 문서화 체계 수립 (`CONTRIBUTING.md`, 워크플로우).

@@ -1,0 +1,133 @@
+.start-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 48px;
+    /* 가로 모드에서 더 넓은 패딩 */
+    gap: 24px;
+    max-width: none;
+    /* 최대 너비 제한 제거 */
+    /* 콘텐츠 최대 폭 */
+    /* 중앙 정렬 */
+    width: 100%;
+    /* 너비 100% */
+}
+
+/* 가로 모드에서 더 넓게 */
+@media (min-width: 1024px) {
+    .start-screen {
+        max-width: none;
+        /* 미디어 쿼리에서도 제한 제거 */
+        padding: 40px 64px;
+    }
+}
+
+.intro-section {
+    text-align: center;
+}
+
+.title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--color-gray-900);
+    margin-bottom: 12px;
+}
+
+.subtitle {
+    color: var(--color-gray-500);
+    line-height: 1.6;
+    word-break: keep-all;
+    /* 단어 단위 줄바꿈 */
+}
+
+.highlight {
+    color: var(--color-primary-600);
+    font-weight: 700;
+}
+
+.input-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.textarea-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px;
+    background-color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    min-height: 240px;
+}
+
+.textarea-wrapper:focus-within {
+    border-color: var(--color-primary-300);
+    box-shadow: 0 0 0 4px var(--color-primary-100);
+}
+
+.passage-input {
+    flex: 1;
+    width: 100%;
+    padding: 20px;
+    padding-bottom: 40px;
+    /* Space for counter */
+    border: none;
+    border-radius: 16px;
+    resize: none;
+    font-family: var(--font-sans);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--color-gray-700);
+    outline: none;
+}
+
+.passage-input::placeholder {
+    color: var(--color-gray-400);
+}
+
+.char-counter {
+    position: absolute;
+    bottom: 16px;
+    right: 20px;
+    font-size: 0.85rem;
+    color: var(--color-gray-400);
+    font-weight: 500;
+}
+
+.char-counter.error {
+    color: var(--color-incorrect);
+}
+
+.error-message {
+    margin-top: 8px;
+    color: var(--color-incorrect);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.action-section {
+    position: sticky;
+    bottom: 24px;
+    display: flex;
+    justify-content: center;
+}
+
+.start-btn {
+    width: 100%;
+    /* max-width: 320px; 제거하고 전체 너비 사용하거나 더 넓게 설정 */
+    height: 56px;
+    font-size: 1.1rem;
+    gap: 8px;
+    box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.3);
+}
+
+.start-btn:disabled {
+    background-color: var(--color-gray-300);
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.7;
+}

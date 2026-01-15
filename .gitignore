@@ -6,3 +6,4 @@ __pycache__/
 dist/
 client/dist/
 server/venv/
+server/data/
