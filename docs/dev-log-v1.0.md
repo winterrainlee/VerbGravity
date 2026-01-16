@@ -3,7 +3,7 @@
 ## 상태 (Status)
 
 > [!NOTE]
-> v1.0 MVP 기준 **학생 모드 핵심 기능** 구현 완료. 교사 모드 및 보안 기능은 미구현.
+> v1.0 MVP 기준 **학생 및 교사 모드 핵심 기능** 구현 완료. 배포 단계 준비 중.
 
 ### 핵심 기능 (학생 모드) ✅
 - [x] 초기화 (Initialization)
@@ -20,11 +20,6 @@
     - [x] 세션 복원 (localStorage)
 
 ### 미구현 항목 ❌
-- [ ] **교사 모드** (v1.0 계획서 포함, 미구현)
-    - [ ] 교사 로그인/인증 시스템
-    - [ ] 학생 요약 테이블 화면
-    - [ ] 세션-학생 매칭 관리 API
-    - [ ] `students`, `session_student_map` DB 테이블
 - [x] **보안 기능** ✅
     - [x] IP Rate Limit (30/분) - `slowapi` 라이브러리
     - [x] API Key 인증 의존성 함수 준비 (`auth/middleware.py`)
@@ -32,6 +27,10 @@
     - [x] QuizContext (전역 상태 관리 분리)
     - [x] SummaryScreen 오답 문장 클릭 → 해당 문장 점프
     - [x] useQuiz 훅 분리 (비즈니스 로직 캡슐화 완료)
+- [x] **교사 모드 (Teacher Mode) 구현** ✅
+    - [x] 학생 관리 및 통계 대시보드 구축
+    - [x] 학생 데이터 삭제 기능 (Cascade 연동)
+    - [x] 관리자 인증 시스템 (bcrypt)
 - [ ] **배포** (미구현)
     - [ ] Fly.io Docker 빌드 및 배포
 

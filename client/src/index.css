@@ -10,6 +10,7 @@
   --color-primary-500: #22c55e;
   --color-primary-600: #16a34a;
   --color-primary-700: #15803d;
+  --color-primary: var(--color-primary-500);
 
   /* Secondary - 파란 계열 (Subject Theme) */
   --color-blue-50: #eff6ff;
@@ -19,6 +20,7 @@
   --color-blue-500: #3b82f6;
   --color-blue-600: #2563eb;
   --color-blue-700: #1d4ed8;
+  --color-blue: var(--color-blue-500);
 
   /* Neutral */
   --color-white: #ffffff;

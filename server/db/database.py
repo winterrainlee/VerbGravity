@@ -15,6 +15,18 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
+    # Enable foreign keys
+    cursor.execute("PRAGMA foreign_keys = ON")
+    
+    # Create students table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS students (
+            id TEXT PRIMARY KEY,
+            display_name TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    
     # Create sessions table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS sessions (
@@ -25,11 +37,21 @@ def init_db():
         )
     """)
     
+    # Create session_student_map table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS session_student_map (
+            session_id TEXT REFERENCES sessions(id) ON DELETE CASCADE,
+            student_id TEXT REFERENCES students(id) ON DELETE CASCADE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (session_id, student_id)
+        )
+    """)
+    
     # Create progress table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS progress (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id TEXT REFERENCES sessions(id),
+            session_id TEXT REFERENCES sessions(id) ON DELETE CASCADE,
             sentence_index INTEGER,
             root_answer INTEGER,
             root_correct BOOLEAN,
@@ -48,6 +70,8 @@ def get_db():
     """Get database connection context manager."""
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    # Enable foreign keys for every session
+    conn.execute("PRAGMA foreign_keys = ON")
     try:
         yield conn
     finally:

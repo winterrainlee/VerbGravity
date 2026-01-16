@@ -92,3 +92,65 @@ export function storeSessionId(sessionId) {
 export function clearStoredSession() {
     localStorage.removeItem(SESSION_KEY);
 }
+
+/**
+ * Admin: Login
+ */
+export async function adminLogin(password) {
+    const response = await fetch(`${getApiUrl()}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+    });
+
+    if (!response.ok) {
+        throw new Error('로그인 실패. 비밀번호를 확인하세요.');
+    }
+
+    return response.json();
+}
+
+/**
+ * Admin: Get all data
+ */
+export async function getAdminData() {
+    const response = await fetch(`${getApiUrl()}/api/admin/sessions`);
+
+    if (!response.ok) {
+        throw new Error('데이터 조회 실패');
+    }
+
+    return response.json();
+}
+
+/**
+ * Admin: Assign session to student
+ */
+export async function assignStudent(sessionId, studentName) {
+    const response = await fetch(`${getApiUrl()}/api/admin/sessions/${sessionId}/assign-student`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_name: studentName }),
+    });
+
+    if (!response.ok) {
+        throw new Error('학생 배정 실패');
+    }
+
+    return response.json();
+}
+
+/**
+ * Admin: Delete student
+ */
+export async function deleteStudent(studentId) {
+    const response = await fetch(`${getApiUrl()}/api/admin/students/${studentId}`, {
+        method: 'DELETE',
+    });
+
+    if (!response.ok) {
+        throw new Error('학생 삭제 실패');
+    }
+
+    return response.json();
+}

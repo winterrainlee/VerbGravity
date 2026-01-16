@@ -57,3 +57,23 @@ class SessionResponse(BaseModel):
     passage_text: str
     total_sentences: int
     progress: List[ProgressItem] = []
+
+# Admin models
+class AdminLoginRequest(BaseModel):
+    password: str
+
+class StudentSummary(BaseModel):
+    studentId: str
+    displayName: str
+    totalSentences: int
+    completedSentences: int
+    rootCorrect: int
+    subjectCorrect: int
+    lastCompletedAt: Optional[str] = None
+
+class AdminSessionsResponse(BaseModel):
+    students: List[StudentSummary]
+    sessions: List[dict] # Detailed session mapping info
+
+class AssignStudentRequest(BaseModel):
+    student_name: str # In MVP, we might just use display name to find/create student

@@ -3,6 +3,8 @@ import AppHeader from './components/AppHeader';
 import StartScreen from './components/StartScreen';
 import QuizScreen from './components/QuizScreen';
 import SummaryScreen from './components/SummaryScreen';
+import TeacherLogin from './components/TeacherLogin';
+import TeacherDashboard from './components/TeacherDashboard';
 import { useQuizContext } from './context/QuizContext';
 import {
   analyzePassage,
@@ -115,7 +117,16 @@ function App() {
   };
 
   const handleLogin = () => {
-    alert('교사 로그인 기능은 준비 중입니다.');
+    setCurrentScreen('TEACHER_LOGIN');
+  };
+
+  const handleLoginSuccess = (token) => {
+    // In MVP, we just set the screen. Token can be used for persistent login if needed.
+    setCurrentScreen('TEACHER_DASHBOARD');
+  };
+
+  const handleLogout = () => {
+    setCurrentScreen('START');
   };
 
   return (
@@ -140,6 +151,15 @@ function App() {
             onRestart={handleRestart}
             onJumpToSentence={handleJumpToSentence}
           />
+        )}
+        {currentScreen === 'TEACHER_LOGIN' && (
+          <TeacherLogin
+            onLoginSuccess={handleLoginSuccess}
+            onBack={() => setCurrentScreen('START')}
+          />
+        )}
+        {currentScreen === 'TEACHER_DASHBOARD' && (
+          <TeacherDashboard onLogout={handleLogout} />
         )}
       </main>
     </>
