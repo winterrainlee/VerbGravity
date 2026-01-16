@@ -148,22 +148,25 @@ def save_progress(request: Request, session_id: str, body: ProgressRequest):
 @limiter.limit("5/minute")
 def admin_login(request: Request, body: AdminLoginRequest):
     """Admin login using password from environment variable."""
-    admin_pw_hash = os.environ.get("VG_ADMIN_PW")
+    admin_pw = os.environ.get("VG_ADMIN_PW")
     
-    if not admin_pw_hash:
+    if not admin_pw:
         # Development fallback: allow "admin" if no environment variable is set
         if body.password == "admin":
             return {"status": "ok", "token": "dev-token"}
         raise HTTPException(status_code=500, detail="Admin password not configured")
     
-    # Check password against hash
-    try:
-        if bcrypt.checkpw(body.password.encode('utf-8'), admin_pw_hash.encode('utf-8')):
-            return {"status": "ok", "token": "admin-token"} # In real app, use JWT
-    except Exception:
-        # If hash is not valid bcrypt, try direct comparison (only for dev/misconfiguration)
-        if body.password == admin_pw_hash:
-            return {"status": "ok", "token": "admin-token"}
+    # Try bcrypt hash comparison first (if admin_pw looks like a bcrypt hash)
+    if admin_pw.startswith("$2"):
+        try:
+            if bcrypt.checkpw(body.password.encode('utf-8'), admin_pw.encode('utf-8')):
+                return {"status": "ok", "token": "admin-token"}
+        except Exception:
+            pass  # Not a valid bcrypt hash, fall through to plain comparison
+    
+    # Plain text comparison
+    if body.password == admin_pw:
+        return {"status": "ok", "token": "admin-token"}
             
     raise HTTPException(status_code=401, detail="Invalid password")
 
