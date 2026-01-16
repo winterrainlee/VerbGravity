@@ -46,5 +46,32 @@ def analyze_expletives():
         
         print(f"  => Detected Subject (Analyzer Logic): {detected_texts}")
 
+    print(f"  => Detected Subject (Analyzer Logic): {detected_texts}")
+
+def analyze_objective_complements():
+    print("\n\n=== Analyze Objective Complements (O.C.) ===")
+    print("Goal: Exclude bare infinitive/participle in ccomp unless it has aux.")
+    
+    try:
+        nlp = spacy.load("en_core_web_sm")
+    except:
+        return
+
+    sentences = [
+        "This mental training helps them stay calm.",   # Should NOT find 'stay'
+        "I saw him running.",                         # Should NOT find 'running'
+        "I think he will come tomorrow."              # Should find 'come'
+    ]
+    
+    from server.nlp.analyzer import find_all_roots
+    
+    for text in sentences:
+        doc = nlp(text)
+        sent = next(doc.sents)
+        roots = find_all_roots(sent)
+        root_texts = [r.text for r in roots]
+        print(f"Sentence: '{text}' -> Roots found: {root_texts}")
+
 if __name__ == "__main__":
     analyze_expletives()
+    analyze_objective_complements()
