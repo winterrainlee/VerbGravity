@@ -2,7 +2,7 @@
 
 > **문장의 핵심을 찾아서, VerbGravity**
 
-![Version](https://img.shields.io/badge/version-v1.0.0-green)
+![Version](https://img.shields.io/badge/version-v1.1.0-green)
 ![Last Updated](https://img.shields.io/badge/last%20updated-2026--01--16-blue)
 
 VerbGravity는 영어 문장의 핵심 요소인 **Root(동사)** 와 **Subject(주어)** 를 스스로 찾아내며 문장 구조를 체득하는 **능동형 문법 훈련 웹앱**입니다. 단순히 분석 결과를 보여주는 것을 넘어, 학습자가 직접 탐색하고 즉각적인 피드백을 통해 교정하는 과정을 제공합니다.

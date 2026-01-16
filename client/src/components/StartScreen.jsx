@@ -1,18 +1,40 @@
-import { useState } from 'react';
-import { Play } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Play, BookOpen } from 'lucide-react';
+import { getPassages } from '../services/api';
 import './StartScreen.css';
 
 const MAX_CHARS = 2000;
 
 const StartScreen = ({ onStart, isLoading }) => {
     const [passage, setPassage] = useState('');
+    const [savedPassages, setSavedPassages] = useState([]);
+    const [showPassageList, setShowPassageList] = useState(false);
     const charCount = passage.length;
     const isOverLimit = charCount > MAX_CHARS;
     const isValid = charCount > 0 && !isOverLimit;
 
+    useEffect(() => {
+        loadPassages();
+    }, []);
+
+    const loadPassages = async () => {
+        try {
+            const data = await getPassages();
+            setSavedPassages(data.passages || []);
+        } catch (error) {
+            console.error('Failed to load passages:', error);
+        }
+    };
+
+    const handleLoadPassage = (content) => {
+        setPassage(content);
+        setShowPassageList(false);
+    };
+
     const handleSubmit = () => {
         if (isValid && !isLoading) {
-            onStart(passage);
+            const mode = localStorage.getItem('vg_grading_mode') || 'FULL';
+            onStart(passage, mode);
         }
     };
 
@@ -26,6 +48,35 @@ const StartScreen = ({ onStart, isLoading }) => {
             </div>
 
             <div className="input-section">
+                {savedPassages.length > 0 && (
+                    <div className="passage-loader">
+                        <button
+                            className="btn btn-secondary load-btn"
+                            onClick={() => setShowPassageList(!showPassageList)}
+                        >
+                            <BookOpen size={18} />
+                            <span>저장된 지문 불러오기</span>
+                        </button>
+
+                        {showPassageList && (
+                            <div className="passage-list">
+                                {savedPassages.map((p) => (
+                                    <button
+                                        key={p.id}
+                                        className="passage-item"
+                                        onClick={() => handleLoadPassage(p.content)}
+                                    >
+                                        <span className="passage-title">{p.title}</span>
+                                        <span className="passage-preview">
+                                            {p.content.substring(0, 50)}...
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 <div className="textarea-wrapper">
                     <textarea
                         className="passage-input"

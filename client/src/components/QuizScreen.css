@@ -33,6 +33,38 @@
   margin-bottom: 8px;
 }
 
+.header-right-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mode-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: -0.5px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.mode-label:active {
+  transform: scale(0.95);
+}
+
+.mode-label.core {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #dcfce7;
+}
+
+.mode-label.full {
+  background-color: #fefce8;
+  color: #a16207;
+  border: 1px solid #fef9c3;
+}
+
 .sentence-counter {
   font-size: 0.9rem;
   font-weight: 700;
@@ -88,6 +120,42 @@
   font-weight: 700;
   margin-left: 8px;
   animation: pulse 2s infinite;
+}
+
+/* v1.1: 복수 정답 힌트 */
+.multi-hint {
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-700);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.grammar-guide-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: white;
+  border: 1px solid var(--color-gray-200);
+  color: var(--color-gray-600);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.grammar-guide-btn:hover {
+  background-color: var(--color-gray-50);
+  color: var(--color-primary-600);
+  border-color: var(--color-primary-200);
 }
 
 @keyframes pulse {
@@ -316,9 +384,21 @@
   align-items: center;
 }
 
-.check-btn,
-.next-btn {
+.check-group {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  width: 100%;
+}
+
+.check-btn {
   flex: 3;
+  height: 52px;
+  font-size: 1.1rem;
+}
+
+.next-btn {
+  width: 100%;
   height: 52px;
   font-size: 1.1rem;
 }
@@ -353,8 +433,9 @@
 }
 
 .omitted-btn {
-  flex: 1;
+  flex: 1.2;
   height: 52px;
   font-size: 0.9rem;
   white-space: nowrap;
+  padding: 0 12px;
 }

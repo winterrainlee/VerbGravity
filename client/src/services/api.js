@@ -6,7 +6,12 @@
 // Get API base URL based on environment
 const getApiUrl = () => {
     // In production (Fly.io), API is served from the same origin
-    // In development (localhost), API is on port 8000
+    // In development (localhost or LAN IP), if on port 5173, backend is on 8000
+    if (window.location.port === '5173') {
+        return `http://${window.location.hostname}:8000`;
+    }
+
+    // Explicit localhost check just in case
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:8000';
     }
@@ -34,11 +39,11 @@ export async function analyzePassage(passage) {
 /**
  * Create a new session
  */
-export async function createSession(passageText, totalSentences) {
+export async function createSession(passageText, totalSentences, mode = 'FULL') {
     const response = await fetch(`${getApiUrl()}/api/sessions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ passage_text: passageText, total_sentences: totalSentences }),
+        body: JSON.stringify({ passage_text: passageText, total_sentences: totalSentences, mode }),
     });
 
     if (!response.ok) {
@@ -101,7 +106,7 @@ export function clearStoredSession() {
  * Admin: Login
  */
 export async function adminLogin(password) {
-    const response = await fetch(`${getApiUrl()}/api/admin/login`, {
+    const response = await fetch(`${getApiUrl()}/api/manage/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -118,7 +123,7 @@ export async function adminLogin(password) {
  * Admin: Get all data
  */
 export async function getAdminData() {
-    const response = await fetch(`${getApiUrl()}/api/admin/sessions`);
+    const response = await fetch(`${getApiUrl()}/api/manage/sessions`);
 
     if (!response.ok) {
         throw new Error('데이터 조회 실패');
@@ -131,7 +136,7 @@ export async function getAdminData() {
  * Admin: Assign session to student
  */
 export async function assignStudent(sessionId, studentName) {
-    const response = await fetch(`${getApiUrl()}/api/admin/sessions/${sessionId}/assign-student`, {
+    const response = await fetch(`${getApiUrl()}/api/manage/sessions/${sessionId}/assign-student`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ student_name: studentName }),
@@ -148,12 +153,87 @@ export async function assignStudent(sessionId, studentName) {
  * Admin: Delete student
  */
 export async function deleteStudent(studentId) {
-    const response = await fetch(`${getApiUrl()}/api/admin/students/${studentId}`, {
+    const response = await fetch(`${getApiUrl()}/api/manage/students/${studentId}`, {
         method: 'DELETE',
     });
 
     if (!response.ok) {
         throw new Error('학생 삭제 실패');
+    }
+
+    return response.json();
+}
+
+/**
+ * Get all saved passages
+ */
+export async function getPassages() {
+    const response = await fetch(`${getApiUrl()}/api/passages`);
+
+    if (!response.ok) {
+        throw new Error('지문 목록 조회 실패');
+    }
+
+    return response.json();
+}
+
+/**
+ * Create a new passage
+ */
+export async function createPassage(title, content) {
+    const response = await fetch(`${getApiUrl()}/api/passages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content }),
+    });
+
+    if (!response.ok) {
+        throw new Error('지문 저장 실패');
+    }
+
+    return response.json();
+}
+
+/**
+ * Delete a passage
+ */
+export async function deletePassage(passageId) {
+    const response = await fetch(`${getApiUrl()}/api/passages/${passageId}`, {
+        method: 'DELETE',
+    });
+
+    if (!response.ok) {
+        throw new Error('지문 삭제 실패');
+    }
+
+    return response.json();
+}
+
+/**
+ * Admin: Delete session
+ */
+export async function deleteSession(sessionId) {
+    const response = await fetch(`${getApiUrl()}/api/manage/sessions/${sessionId}`, {
+        method: 'DELETE',
+    });
+
+    if (!response.ok) {
+        throw new Error('세션 삭제 실패');
+    }
+
+    return response.json();
+}
+
+/**
+ * Admin: Clear all sessions
+ */
+export async function clearAllSessions() {
+    const response = await fetch(`${getApiUrl()}/api/manage/sessions`, {
+        method: 'DELETE',
+    });
+
+    if (!response.ok) {
+        throw new Error('세션 전체 삭제 실패');
     }
 
     return response.json();

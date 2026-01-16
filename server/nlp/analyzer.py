@@ -1,16 +1,5 @@
 import spacy
-from typing import List
-from . import analyzer  # This seems recursive or wrong if I am IN analyzer.py. 
-# Wait, I am WRITING analyzer.py. I should import models here.
-import sys
-import os
-
-# Add parent directory to path to import models if needed, or use relative imports properly in package
-# Simplified for single file usage initially or cleaner structure
-# Let's assume standard package structure: server.nlp.analyzer
-
-# To make imports work easily without complex package setup for now:
-# We will just write the logic.
+from typing import List, Dict, Any, Optional
 
 nlp_model = None
 
@@ -26,6 +15,64 @@ def load_model():
             download("en_core_web_sm")
             nlp_model = spacy.load("en_core_web_sm")
 
+
+def find_all_roots(sent) -> List:
+    """문장에서 모든 핵심 동사를 찾는다.
+    
+    패턴:
+    - sent.root: 문장의 기본 root
+    - conj: 등위접속사(and, but, or)로 연결된 병렬 동사
+    - ccomp: 종속절의 동사 (so, because 절)
+    """
+    roots = [sent.root]
+    
+    # 1. conj: 병렬 동사 (and/or/but로 연결)
+    for child in sent.root.children:
+        if child.dep_ == "conj" and child.pos_ == "VERB":
+            roots.append(child)
+    
+    # 2. ccomp: 보문절 동사 (so/because 절)
+    for child in sent.root.children:
+        if child.dep_ == "ccomp" and child.pos_ == "VERB":
+            roots.append(child)
+    
+    # 문장 순서대로 정렬
+    return sorted(roots, key=lambda t: t.i)
+
+
+def find_subjects_for_roots(roots: List, token_map: Dict[int, int]) -> tuple:
+    """각 root에 대한 subject를 찾는다."""
+    subjects = []
+    subject_spans = []
+    
+    for root in roots:
+        subj = None
+        for child in root.children:
+            # 1. Check for expletive (there)
+            if child.dep_ == "expl":
+                # If 'there' exists, the real subject is usually 'attr'
+                for sibling in root.children:
+                    if sibling.dep_ == "attr":
+                        subj = sibling
+                        break
+                if subj: break
+
+            # 2. Check for normal subjects
+            if child.dep_ in ["nsubj", "nsubjpass", "nsubj:pass", "csubj", "csubjpass", "csubj:pass"]:
+                subj = child
+                break
+        
+        if subj and subj.i in token_map:
+            subjects.append(token_map[subj.i])
+            span = [token_map[t.i] for t in subj.subtree if t.i in token_map]
+            subject_spans.append(sorted(span))
+        else:
+            subjects.append(None)
+            subject_spans.append([])
+    
+    return subjects, subject_spans
+
+
 def analyze_passage(text: str) -> dict:
     load_model()
     doc = nlp_model(text)
@@ -35,61 +82,33 @@ def analyze_passage(text: str) -> dict:
     for sent_idx, sent in enumerate(doc.sents):
         # 1. Tokenization with mapping
         sent_tokens_data = []
-        token_map = {} # global_idx -> local_idx
+        token_map = {}  # global_idx -> local_idx
         
         for local_idx, token in enumerate(sent):
-            # token.i is global index in Doc
             token_map[token.i] = local_idx
             
             sent_tokens_data.append({
                 "id": local_idx,
                 "text": token.text,
-                "start": token.idx, # char offset in doc (optional, maybe sent-relative is better?)
-                # Plan says: start/end char indices. Let's keep original offsets for now or just text.
-                # Actually for highlighting, we might need simple text reconstruction. 
-                # Let's stick to the plan: start/end are usually char offsets.
-                # But for the UI, I just need the token stream. 
-                # "start": 0, "end": 3 (length) logic is also fine.
-                # Let's use char offset relative to SENTENCE for safety if needed, 
-                # but the UI renders tokens array, so just text is enough usually.
-                # API spec said start/end. Let's provide char offset in sentence.
                 "start": token.idx - sent.start_char,
                 "end": token.idx - sent.start_char + len(token.text),
                 "pos": token.pos_,
                 "tag": token.tag_,
                 "dep": token.dep_
             })
-            
-        # 2. Find Root
-        # Heuristic: The root of the sentence span
-        # Usually sent.root works well for simple sentences.
-        root_token = sent.root
         
-        # 3. Find Subject
-        # Look for nsubj, nsubjpass, csubj, csubjpass dependent on the root
-        subject_token = None
-        for child in root_token.children:
-            if child.dep_ in ["nsubj", "nsubj:pass", "csubj", "csubj:pass"]:
-                subject_token = child
-                break
-                
-        # 4. Subject Span
-        # The subtree of the subject token
-        subject_span_indices = []
-        if subject_token:
-            # Flatten subtree and get indices relative to sentence
-            subject_span_indices = [token_map[t.i] for t in subject_token.subtree if t.i in token_map]
-            subject_span_indices.sort()
-            
-        # Map global tokens to local indices for Key
-        root_local_idx = token_map.get(root_token.i)
-        subj_local_idx = token_map.get(subject_token.i) if subject_token else None
+        # 2. Find all roots (v1.1: 복수 root 지원)
+        root_tokens = find_all_roots(sent)
+        roots = [token_map.get(t.i) for t in root_tokens]
         
-        # Create Key object
+        # 3. Find subjects for each root (v1.1: 복수 subject 지원)
+        subjects, subject_spans = find_subjects_for_roots(root_tokens, token_map)
+        
+        # Create Key object (v1.1: 배열 형태)
         key_data = {
-            "root": root_local_idx,
-            "subject": subj_local_idx,
-            "subjectSpan": subject_span_indices
+            "roots": roots,
+            "subjects": subjects,
+            "subjectSpans": subject_spans
         }
         
         sentences_data.append({
@@ -98,7 +117,7 @@ def analyze_passage(text: str) -> dict:
             "tokens": sent_tokens_data,
             "key": key_data
         })
-        
+    
     return {
         "sentences": sentences_data,
         "meta": {

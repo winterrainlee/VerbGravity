@@ -1,6 +1,10 @@
 import { Check, ArrowRight, ArrowLeft, RefreshCw, AlertCircle } from 'lucide-react';
 import { QuizStep } from '../context/QuizContext';
 import { useQuiz } from '../hooks/useQuiz';
+import { BookOpen } from 'lucide-react';
+import toast from 'react-hot-toast';
+import GrammarGuideModal from './GrammarGuideModal';
+import { useState } from 'react';
 import './QuizScreen.css';
 
 const QuizScreen = (props) => {
@@ -11,6 +15,8 @@ const QuizScreen = (props) => {
         isLastSentence,
         progress,
         isCorrect,
+        expectedRootCount,
+        expectedSubjectCount,
         handleTokenClick,
         handleCheck,
         handleNext,
@@ -20,7 +26,36 @@ const QuizScreen = (props) => {
         onRestart
     } = useQuiz(props);
 
-    const { sentenceIndex, step, selection, isChecked, feedback, isReviewMode } = state;
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
+
+    const { sentenceIndex, step, selections, isChecked, feedback, isReviewMode } = state;
+
+    // v1.1: 정답 배열 가져오기 (하위 호환성)
+    const getRoots = (sent) => sent.key.roots || [sent.key.root];
+    const getSubjects = (sent) => (sent.key.subjects || [sent.key.subject]).filter(s => s !== null);
+    const getSubjectSpans = (sent) => {
+        if (sent.key.subjectSpans) {
+            return sent.key.subjectSpans.flat();
+        }
+        return sent.key.subjectSpan || [];
+    };
+
+    // v1.1.2: 채점 모드 가져오기
+    const gradingMode = localStorage.getItem('vg_grading_mode') || 'FULL';
+
+    const handleModeClick = () => {
+        if (gradingMode === 'CORE') {
+            toast('🌱 [기초 모드] \n핵심 주어(Head)와 동사만 찾으면 정답입니다.', {
+                icon: '🟢',
+                style: { borderRadius: '10px', background: '#f0fdf4', color: '#15803d' },
+            });
+        } else {
+            toast('🌳 [심화 모드] \n주어구 전체(Span)를 선택해야 정답이며 힌트가 없습니다.', {
+                icon: '🟠',
+                style: { borderRadius: '10px', background: '#fefce8', color: '#a16207' },
+            });
+        }
+    };
 
     return (
         <div className="quiz-screen">
@@ -34,9 +69,29 @@ const QuizScreen = (props) => {
                         {isReviewMode && (
                             <span className="review-badge">복습 중</span>
                         )}
+                        {feedback.type === 'incorrect' && (
+                            <button
+                                className="grammar-guide-btn"
+                                onClick={() => setIsGuideOpen(true)}
+                                title="문법 가이드 보기"
+                            >
+                                <BookOpen size={14} />
+                                <span>문법 안내</span>
+                            </button>
+                        )}
                     </div>
-                    <div className="sentence-counter">
-                        {sentenceIndex + 1} / {data.sentences.length}
+
+                    <div className="header-right-group">
+                        <span
+                            className={`mode-label ${gradingMode.toLowerCase()}`}
+                            onClick={handleModeClick}
+                            title="모드 설명 보기"
+                        >
+                            {gradingMode === 'CORE' ? '기초' : '심화'}
+                        </span>
+                        <div className="sentence-counter">
+                            {sentenceIndex + 1} / {data.sentences.length}
+                        </div>
                     </div>
                 </div>
                 <div className="progress-bar-bg">
@@ -54,6 +109,10 @@ const QuizScreen = (props) => {
             <div className="passage-pane">
                 {data.sentences.map((sent, sIdx) => {
                     const isActive = sIdx === sentenceIndex;
+                    const roots = getRoots(sent);
+                    const subjects = getSubjects(sent);
+                    const subjectSpanTokens = getSubjectSpans(sent);
+
                     return (
                         <div
                             key={sent.id}
@@ -63,15 +122,21 @@ const QuizScreen = (props) => {
                             {isActive ? (
                                 <div className={`tokens-wrapper step-${step.toLowerCase()}`}>
                                     {sent.tokens.map((token) => {
-                                        const isSelected = selection === token.id;
+                                        const isSelected = selections.includes(token.id);
                                         let tokenClass = 'token';
                                         if (isSelected) tokenClass += ' selected';
 
-                                        if (step === QuizStep.SUBJECT && sent.key.root === token.id) {
+                                        // v1.1: 복수 root 지원
+                                        if (step === QuizStep.SUBJECT && roots.includes(token.id)) {
                                             tokenClass += ' solved-root';
                                         }
 
-                                        if (step === QuizStep.SUBJECT && sent.key.subjectSpan.includes(token.id)) {
+                                        // v1.1.2: 채점 모드에 따른 힌트(밑줄) 표시
+                                        const gradingMode = localStorage.getItem('vg_grading_mode') || 'FULL';
+                                        // 기초(CORE) 모드에서만 핵심 주어 밑줄 표시, 심화(FULL) 모드에서는 힌트 제거
+                                        const isHintVisible = gradingMode === 'CORE' && subjects.includes(token.id);
+
+                                        if (step === QuizStep.SUBJECT && isHintVisible) {
                                             tokenClass += ' hint-underline';
                                         }
 
@@ -108,32 +173,39 @@ const QuizScreen = (props) => {
 
                 <div className="action-btns">
                     {!isCorrect ? (
-                        <button
-                            className="btn btn-primary check-btn"
-                            onClick={handleCheck}
-                            disabled={selection === null && step !== QuizStep.SUBJECT}
-                        >
-                            확인
-                        </button>
+                        <div className="check-group">
+                            <button
+                                className="btn btn-primary check-btn"
+                                onClick={handleCheck}
+                                disabled={selections.length === 0 && step !== QuizStep.SUBJECT}
+                            >
+                                확인 {selections.length > 0 && `(${selections.length})`}
+                            </button>
+                            {step === QuizStep.SUBJECT && (
+                                <button
+                                    className="btn btn-secondary omitted-btn"
+                                    onClick={handleOmittedSubject}
+                                >
+                                    (you 생략)
+                                </button>
+                            )}
+                        </div>
                     ) : (
                         <button className="btn btn-primary next-btn" onClick={handleNext}>
                             {isLastSentence && step === QuizStep.SUBJECT ? '결과 보기' : '다음'} <ArrowRight size={18} />
                         </button>
                     )}
-                    <button className="btn btn-text restart-quiz-btn" onClick={onRestart} title="새로운 지문으로 시작">
-                        <RefreshCw size={18} /> <span>지문 초기화</span>
-                    </button>
                 </div>
 
-                {step === QuizStep.SUBJECT && !isCorrect && (
-                    <button
-                        className="btn btn-secondary omitted-btn"
-                        onClick={handleOmittedSubject}
-                    >
-                        (you 생략)
-                    </button>
-                )}
+                <button className="btn btn-text restart-quiz-btn" onClick={onRestart} title="새로운 지문으로 시작">
+                    <RefreshCw size={18} /> <span>지문 초기화</span>
+                </button>
             </div>
+
+            <GrammarGuideModal
+                isOpen={isGuideOpen}
+                onClose={() => setIsGuideOpen(false)}
+            />
         </div>
     );
 };

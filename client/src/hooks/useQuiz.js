@@ -1,13 +1,33 @@
 import { useEffect } from 'react';
 import { useQuizContext, QuizStep } from '../context/QuizContext';
 
+// 배열 비교 헬퍼 함수 (순서 무관, 집합 비교)
+const arraysEqual = (arr1, arr2) => {
+    if (arr1.length !== arr2.length) return false;
+    const sorted1 = [...arr1].sort((a, b) => a - b);
+    const sorted2 = [...arr2].sort((a, b) => a - b);
+    return sorted1.every((val, idx) => val === sorted2[idx]);
+};
+
 export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish, onRestart }) => {
     const { state, dispatch } = useQuizContext();
-    const { sentenceIndex, step, selection, isChecked, feedback, results, isReviewMode } = state;
+    const { sentenceIndex, step, selections, isChecked, feedback, results, isReviewMode } = state;
 
     const currentSentence = data.sentences[sentenceIndex];
     const isLastSentence = sentenceIndex === data.sentences.length - 1;
     const progress = ((sentenceIndex) / data.sentences.length) * 100;
+
+    // 현재 문장의 정답 개수 (v1.1)
+    // 현재 문장의 정답 개수 (v1.1)
+    const answerKey = currentSentence.key;
+    const gradingMode = localStorage.getItem('vg_grading_mode') || 'FULL';
+
+    const expectedRootCount = answerKey.roots?.length || 1;
+    // v1.1.1: 채점 모드에 따른 주어 개수 설정
+    const expectedSubjectTokens = gradingMode === 'CORE'
+        ? (answerKey.subjects || [answerKey.subject]).filter(s => s !== null)
+        : (answerKey.subjectSpans || [[answerKey.subject]]).flat().filter(s => s !== null);
+    const expectedSubjectCount = expectedSubjectTokens.length;
 
     // 초기 결과 구조 생성
     useEffect(() => {
@@ -23,7 +43,7 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
         }
     }, [data.sentences, results.length, dispatch]);
 
-    // Scroll to active sentence (컴포넌트 사이드 이펙트지만 훅에서 관리 가능)
+    // Scroll to active sentence
     useEffect(() => {
         const el = document.getElementById(`sentence-${sentenceIndex}`);
         if (el) {
@@ -54,20 +74,19 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
     };
 
     const handleCheck = () => {
-        if (selection === null) return;
-
-        const answerKey = currentSentence.key;
-        const selectedToken = currentSentence.tokens.find(t => t.id === selection);
+        if (selections.length === 0) return;
 
         if (step === QuizStep.ROOT) {
-            const isCorrect = selection === answerKey.root;
+            // v1.1: 복수 root 비교
+            const expectedRoots = answerKey.roots || [answerKey.root];
+            const isCorrect = arraysEqual(selections, expectedRoots);
 
             if (results[sentenceIndex]?.rootCorrect === null) {
                 dispatch({
                     type: 'UPDATE_RESULT',
                     payload: {
                         rootCorrect: isCorrect,
-                        rootWrongTokenId: isCorrect ? null : selection
+                        rootWrongTokenId: isCorrect ? null : selections[0]
                     }
                 });
             }
@@ -79,7 +98,9 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
                         isCorrect: true,
                         message: isReviewMode
                             ? '정확해요! 핵심 동사를 찾아냈습니다. 이제 주어도 확인해볼까요?'
-                            : '정답입니다! 핵심 동사를 찾았습니다.'
+                            : expectedRoots.length > 1
+                                ? `정답입니다! ${expectedRoots.length}개의 핵심 동사를 모두 찾았습니다.`
+                                : '정답입니다! 핵심 동사를 찾았습니다.'
                     }
                 });
                 setTimeout(() => {
@@ -87,11 +108,17 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
                 }, 1000);
             } else {
                 let hint = "다시 찾아보세요.";
-                if (selectedToken) {
-                    if (selectedToken.pos === 'NOUN') hint = "명사(Noun)는 동사가 될 수 없습니다.";
-                    else if (selectedToken.pos === 'ADJ') hint = "형용사(Adjective)는 동사가 아닙니다.";
-                    else if (selectedToken.pos === 'ADP') hint = "전치사(Preposition)는 동사가 아닙니다.";
-                    else if (selectedToken.dep === 'aux') hint = "조동사보다는 의미를 가진 본동사를 찾아보세요.";
+                if (selections.length < expectedRoots.length) {
+                    hint = `동사가 ${expectedRoots.length}개 있습니다. 더 찾아보세요.`;
+                } else if (selections.length > expectedRoots.length) {
+                    hint = `동사가 ${expectedRoots.length}개입니다. 선택을 줄여보세요.`;
+                } else {
+                    const selectedToken = currentSentence.tokens.find(t => t.id === selections[0]);
+                    if (selectedToken) {
+                        if (selectedToken.pos === 'NOUN') hint = "명사(Noun)는 동사가 될 수 없습니다.";
+                        else if (selectedToken.pos === 'ADJ') hint = "형용사(Adjective)는 동사가 아닙니다.";
+                        else if (selectedToken.dep === 'aux') hint = "조동사보다는 의미를 가진 본동사를 찾아보세요.";
+                    }
                 }
                 dispatch({
                     type: 'CHECK_ANSWER',
@@ -99,7 +126,8 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
                 });
             }
         } else if (step === QuizStep.SUBJECT) {
-            const isCorrect = selection === answerKey.subject;
+            // v1.1.2: 채점 모드에 따른 주어 비교
+            const isCorrect = arraysEqual(selections, expectedSubjectTokens);
 
             let currentResult = results[sentenceIndex];
             if (currentResult?.subjectCorrect === null) {
@@ -107,7 +135,7 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
                     type: 'UPDATE_RESULT',
                     payload: {
                         subjectCorrect: isCorrect,
-                        subjectWrongTokenId: isCorrect ? null : selection
+                        subjectWrongTokenId: isCorrect ? null : selections[0]
                     }
                 });
                 currentResult = { ...currentResult, subjectCorrect: isCorrect };
@@ -117,9 +145,9 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
                 if (onSentenceComplete) {
                     onSentenceComplete(
                         sentenceIndex,
-                        answerKey.root,
+                        answerKey.roots?.[0] || answerKey.root,
                         results[sentenceIndex].rootCorrect === true,
-                        selection,
+                        selections[0],
                         currentResult.subjectCorrect === true
                     );
                 }
@@ -135,7 +163,9 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
                             ? '축하합니다! 모든 오답 복습을 성공적으로 마쳤어요! 🎉'
                             : isReviewMode
                                 ? '정확해요! 주어를 찾아냈습니다. 잘했어요!'
-                                : '정답입니다!'
+                                : expectedSubjectTokens.length > 1
+                                    ? `정답입니다! ${expectedSubjectTokens.length}개의 정답 요소를 모두 찾았습니다.`
+                                    : '정답입니다!'
                     }
                 });
 
@@ -143,9 +173,22 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
                     dispatch({ type: 'UPDATE_RESULT', payload: { isReviewed: true } });
                 }
             } else {
-                let hint = "주어는 동작을 행하는 주체입니다.";
-                if (selectedToken) {
-                    if (selectedToken.pos === 'VERB') hint = "동사는 주어가 될 수 없습니다.";
+                let hint = "";
+                if (gradingMode === 'FULL') {
+                    if (selections.length < expectedSubjectTokens.length) {
+                        hint = "주어구의 일부만 선택되었습니다. 전체를 선택하세요.";
+                    } else {
+                        hint = "주어구 전체를 정확히 선택했는지 확인하세요.";
+                    }
+                } else {
+                    // CORE Mode: Specific hints
+                    if (selections.length < expectedSubjectTokens.length) {
+                        hint = `정답이 ${expectedSubjectTokens.length}개 단어입니다. 더 선택하세요.`;
+                    } else if (selections.length > expectedSubjectTokens.length) {
+                        hint = `정답이 ${expectedSubjectTokens.length}개 단어입니다. 선택을 줄이세요.`;
+                    } else {
+                        hint = "동작의 주체를 찾아보세요.";
+                    }
                 }
                 dispatch({
                     type: 'CHECK_ANSWER',
@@ -181,7 +224,9 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
 
     const handleOmittedSubject = () => {
         if (step !== QuizStep.SUBJECT) return;
-        const isOmitted = currentSentence.key.subject === null;
+        // v1.1: 모든 subject가 null이면 생략
+        const expectedSubjects = (answerKey.subjects || [answerKey.subject]).filter(s => s !== null);
+        const isOmitted = expectedSubjects.length === 0;
 
         if (isOmitted) {
             if (results[sentenceIndex]?.subjectCorrect === null) {
@@ -238,6 +283,8 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
         isLastSentence,
         progress,
         isCorrect: isChecked && feedback.type === 'correct',
+        expectedRootCount,
+        expectedSubjectCount,
         handleTokenClick,
         handleCheck,
         handleNext,

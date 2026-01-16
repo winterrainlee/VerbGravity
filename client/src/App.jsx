@@ -37,6 +37,9 @@ function App() {
         if (session) {
           // 세션 복원: 분석 데이터 다시 가져오기
           const data = await analyzePassage(session.passage_text);
+          if (session.mode) {
+            localStorage.setItem('vg_grading_mode', session.mode);
+          }
           setPassageData(data);
           setSessionId(storedId);
           setSavedProgress(session.progress || []);
@@ -56,7 +59,7 @@ function App() {
     restoreSession();
   }, []);
 
-  const handleStart = async (text) => {
+  const handleStart = async (text, mode = 'FULL') => {
     setIsLoading(true);
 
     try {
@@ -64,7 +67,7 @@ function App() {
       const data = await analyzePassage(text);
 
       // 2. 세션 생성
-      const { id } = await createSession(text, data.sentences.length);
+      const { id } = await createSession(text, data.sentences.length, mode);
 
       // 3. 세션 ID 저장
       storeSessionId(id);

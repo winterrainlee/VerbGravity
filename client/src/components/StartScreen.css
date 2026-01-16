@@ -18,7 +18,7 @@
     .start-screen {
         max-width: none;
         /* 미디어 쿼리에서도 제한 제거 */
-        padding: 40px 64px;
+        padding: 36px 64px;
     }
 }
 
@@ -130,4 +130,80 @@
     box-shadow: none;
     cursor: not-allowed;
     opacity: 0.7;
+}
+
+/* Passage Loader Styles */
+.passage-loader {
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.load-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background-color: var(--color-gray-100);
+    border: 1px solid var(--color-gray-300);
+    border-radius: 8px;
+    color: var(--color-gray-700);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.load-btn:hover {
+    background-color: var(--color-primary-50);
+    border-color: var(--color-primary-300);
+}
+
+.passage-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-width: 400px;
+    margin-top: 8px;
+    background: white;
+    border: 1px solid var(--color-gray-200);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.passage-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-gray-100);
+    transition: background-color 0.2s;
+}
+
+.passage-item:last-child {
+    border-bottom: none;
+}
+
+.passage-item:hover {
+    background-color: var(--color-primary-50);
+}
+
+.passage-title {
+    font-weight: 600;
+    color: var(--color-gray-900);
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+
+.passage-preview {
+    font-size: 0.8rem;
+    color: var(--color-gray-500);
+    line-height: 1.4;
 }

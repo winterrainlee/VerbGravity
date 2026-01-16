@@ -68,7 +68,7 @@ body {
   background-color: #d1fae5;
   /* 배경을 조금 더 진하게 하여 컨테이너와 구분 (Primary 100~200 사이) */
   color: var(--color-gray-900);
-  line-height: 1.5;
+  line-height: 1.3;
   -webkit-font-smoothing: antialiased;
   margin: 0;
 }

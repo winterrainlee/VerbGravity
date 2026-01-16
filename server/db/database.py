@@ -5,8 +5,10 @@ import sqlite3
 import os
 from contextlib import contextmanager
 
-# Database file path
-DB_PATH = os.environ.get("VG_DB_PATH", "./data/verbgravity.db")
+# Database file path (anchor to server/ to avoid cwd-dependent paths)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+DEFAULT_DB_PATH = os.path.join(BASE_DIR, "data", "verbgravity.db")
+DB_PATH = os.environ.get("VG_DB_PATH", DEFAULT_DB_PATH)
 
 def init_db():
     """Initialize database and create tables if not exist."""
@@ -17,6 +19,9 @@ def init_db():
     
     # Enable foreign keys
     cursor.execute("PRAGMA foreign_keys = ON")
+    
+    # Enable WAL mode for better concurrency
+    cursor.execute("PRAGMA journal_mode = WAL")
     
     # Create students table
     cursor.execute("""
@@ -33,7 +38,8 @@ def init_db():
             id TEXT PRIMARY KEY,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             passage_text TEXT NOT NULL,
-            total_sentences INTEGER
+            total_sentences INTEGER,
+            mode TEXT DEFAULT 'FULL'
         )
     """)
     
@@ -59,6 +65,17 @@ def init_db():
             subject_correct BOOLEAN,
             completed_at DATETIME,
             UNIQUE(session_id, sentence_index)
+        )
+    """)
+    
+    # Create passages table (v1.1)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS passages (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
     

@@ -11,9 +11,10 @@ class TokenItem(BaseModel):
     dep: str      # Dependency (e.g., "ROOT", "nsubj")
 
 class AnswerKey(BaseModel):
-    root: int
-    subject: Optional[int]
-    subjectSpan: List[int] = []
+    # v1.1: 복수 root/subject 지원
+    roots: List[Optional[int]]
+    subjects: List[Optional[int]]
+    subjectSpans: List[List[int]] = []
 
 class SentenceItem(BaseModel):
     id: int
@@ -36,6 +37,7 @@ class AnalysisResponse(BaseModel):
 class CreateSessionRequest(BaseModel):
     passage_text: str
     total_sentences: int
+    mode: str = 'FULL'
 
 class ProgressItem(BaseModel):
     sentence_index: int
@@ -56,6 +58,7 @@ class SessionResponse(BaseModel):
     created_at: str
     passage_text: str
     total_sentences: int
+    mode: str = 'FULL'
     progress: List[ProgressItem] = []
 
 # Admin models
@@ -69,6 +72,7 @@ class StudentSummary(BaseModel):
     completedSentences: int
     rootCorrect: int
     subjectCorrect: int
+    mode: str = 'FULL'
     lastCompletedAt: Optional[str] = None
 
 class AdminSessionsResponse(BaseModel):
@@ -77,3 +81,18 @@ class AdminSessionsResponse(BaseModel):
 
 class AssignStudentRequest(BaseModel):
     student_name: str # In MVP, we might just use display name to find/create student
+
+# Passage models (v1.1)
+class PassageCreateRequest(BaseModel):
+    title: str
+    content: str
+
+class PassageItem(BaseModel):
+    id: str
+    title: str
+    content: str
+    created_at: str
+    updated_at: str
+
+class PassageListResponse(BaseModel):
+    passages: List[PassageItem]

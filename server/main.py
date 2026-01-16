@@ -7,7 +7,8 @@ from slowapi.errors import RateLimitExceeded
 from models import (
     PassageRequest, AnalysisResponse,
     CreateSessionRequest, SessionResponse, ProgressRequest, ProgressItem,
-    AdminLoginRequest, AdminSessionsResponse, StudentSummary, AssignStudentRequest
+    AdminLoginRequest, AdminSessionsResponse, StudentSummary, AssignStudentRequest,
+    PassageCreateRequest, PassageItem, PassageListResponse
 )
 from nlp.analyzer import analyze_passage
 from db.database import init_db, get_db
@@ -66,8 +67,8 @@ def create_session(request: Request, body: CreateSessionRequest):
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO sessions (id, passage_text, total_sentences) VALUES (?, ?, ?)",
-            (session_id, body.passage_text, body.total_sentences)
+            "INSERT INTO sessions (id, passage_text, total_sentences, mode) VALUES (?, ?, ?, ?)",
+            (session_id, body.passage_text, body.total_sentences, body.mode)
         )
         conn.commit()
     
@@ -110,6 +111,7 @@ def get_session(request: Request, session_id: str):
             created_at=session["created_at"],
             passage_text=session["passage_text"],
             total_sentences=session["total_sentences"],
+            mode=session["mode"] if "mode" in session.keys() else "FULL", # Handle legacy data
             progress=progress
         )
 
@@ -144,7 +146,7 @@ def save_progress(request: Request, session_id: str, body: ProgressRequest):
     return {"status": "ok"}
 
 # Admin APIs
-@app.post("/api/admin/login")
+@app.post("/api/manage/login")
 @limiter.limit("5/minute")
 def admin_login(request: Request, body: AdminLoginRequest):
     """Admin login using password from environment variable."""
@@ -170,7 +172,7 @@ def admin_login(request: Request, body: AdminLoginRequest):
             
     raise HTTPException(status_code=401, detail="Invalid password")
 
-@app.get("/api/admin/sessions")
+@app.get("/api/manage/sessions")
 def get_admin_sessions(request: Request):
     """Get all students and sessions for dashboard."""
     with get_db() as conn:
@@ -188,7 +190,13 @@ def get_admin_sessions(request: Request):
                 COUNT(p.id) as completedSentences,
                 COALESCE(SUM(CASE WHEN p.root_correct = 1 THEN 1 ELSE 0 END), 0) as rootCorrect,
                 COALESCE(SUM(CASE WHEN p.subject_correct = 1 THEN 1 ELSE 0 END), 0) as subjectCorrect,
-                MAX(p.completed_at) as lastCompletedAt
+                MAX(p.completed_at) as lastCompletedAt,
+                (SELECT sess3.mode 
+                 FROM session_student_map m3 
+                 JOIN sessions sess3 ON m3.session_id = sess3.id 
+                 WHERE m3.student_id = s.id 
+                 ORDER BY sess3.created_at DESC 
+                 LIMIT 1) as mode
             FROM students s
             LEFT JOIN session_student_map m ON s.id = m.student_id
             LEFT JOIN sessions sess ON m.session_id = sess.id
@@ -205,6 +213,7 @@ def get_admin_sessions(request: Request):
                 completedSentences=row["completedSentences"],
                 rootCorrect=row["rootCorrect"],
                 subjectCorrect=row["subjectCorrect"],
+                mode=row["mode"] or "FULL",
                 lastCompletedAt=row["lastCompletedAt"]
             )
             for row in student_rows
@@ -217,6 +226,7 @@ def get_admin_sessions(request: Request):
                 sess.created_at, 
                 sess.passage_text, 
                 sess.total_sentences,
+                sess.mode,
                 s.id as student_id,
                 s.display_name as student_name
             FROM sessions sess
@@ -232,6 +242,7 @@ def get_admin_sessions(request: Request):
                 "created_at": row["created_at"],
                 "passage_text": row["passage_text"][:50] + "...",
                 "total_sentences": row["total_sentences"],
+                "mode": row["mode"] or "FULL",
                 "student_id": row["student_id"],
                 "student_name": row["student_name"] or "미지정"
             }
@@ -240,7 +251,7 @@ def get_admin_sessions(request: Request):
         
         return {"students": students, "sessions": sessions}
 
-@app.put("/api/admin/sessions/{session_id}/assign-student")
+@app.put("/api/manage/sessions/{session_id}/assign-student")
 def assign_student(session_id: str, body: AssignStudentRequest):
     """Assign a session to a student (creates student if not exists)."""
     with get_db() as conn:
@@ -263,8 +274,26 @@ def assign_student(session_id: str, body: AssignStudentRequest):
         conn.commit()
     
     return {"status": "ok", "student_id": student_id}
+    
+@app.delete("/api/manage/sessions/{session_id}")
+def delete_session(session_id: str):
+    """Delete a single session."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM sessions WHERE id = ?", (session_id,))
+        conn.commit()
+    return {"status": "ok"}
 
-@app.delete("/api/admin/students/{student_id}")
+@app.delete("/api/manage/sessions")
+def clear_all_sessions():
+    """Delete all sessions."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM sessions")
+        conn.commit()
+    return {"status": "ok"}
+
+@app.delete("/api/manage/students/{student_id}")
 def delete_student(student_id: str):
     """Delete a student and all their related data (mappings and progress)."""
     with get_db() as conn:
@@ -287,6 +316,53 @@ def delete_student(student_id: str):
         
         conn.commit()
         
+    return {"status": "ok"}
+
+# Passage APIs (v1.1)
+@app.get("/api/passages")
+def get_passages():
+    """Get all saved passages."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, title, content, created_at, updated_at FROM passages ORDER BY created_at DESC")
+        rows = cursor.fetchall()
+        
+        passages = [
+            PassageItem(
+                id=row["id"],
+                title=row["title"],
+                content=row["content"],
+                created_at=row["created_at"],
+                updated_at=row["updated_at"]
+            )
+            for row in rows
+        ]
+        
+        return {"passages": passages}
+
+@app.post("/api/passages")
+def create_passage(body: PassageCreateRequest):
+    """Create a new passage (teacher only)."""
+    passage_id = str(uuid.uuid4())
+    
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO passages (id, title, content) VALUES (?, ?, ?)",
+            (passage_id, body.title, body.content)
+        )
+        conn.commit()
+    
+    return {"id": passage_id, "status": "ok"}
+
+@app.delete("/api/passages/{passage_id}")
+def delete_passage(passage_id: str):
+    """Delete a passage (teacher only)."""
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM passages WHERE id = ?", (passage_id,))
+        conn.commit()
+    
     return {"status": "ok"}
 
 # Serve React Static Files
