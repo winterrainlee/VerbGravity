@@ -1,0 +1,22 @@
+# fly.toml configuration file for verbgravity
+
+app = "verbgravity"
+primary_region = "nrt"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[mounts]]
+  source = "vg_data"
+  destination = "/app/data"
+
+[env]
+  VG_DB_PATH = "/app/data/verbgravity.db"
