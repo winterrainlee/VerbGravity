@@ -38,9 +38,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-def read_root():
-    return {"status": "ok", "message": "VerbGravity API is running"}
+# Root API endpoint (Optional, can be removed to let StaticFiles serve /)
+# @app.get("/")
+# def read_root():
+#    return {"status": "ok", "message": "VerbGravity API is running"}
 
 @app.post("/api/analyze-passage", response_model=AnalysisResponse)
 @limiter.limit("30/minute")
