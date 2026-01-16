@@ -32,6 +32,11 @@
   - 채점 모드 저장 및 교사 대시보드 개선.
   - UI/UX 및 시간대 표시 오류 수정.
 
+### 2026-01-16 - v1.1.1 Hotfix
+- **Deployed v1.1.1**: DB 스키마 마이그레이션 로직 추가.
+  - 배포 환경에서 `stations` 테이블에 `mode` 컬럼 누락으로 인한 500 에러 해결.
+  - `database.py`: `check_and_migrate_schema` 함수 구현.
+
 ### 2026-01-16 - 디자인 개선 및 관리 편의성 강화 (v1.1)
 - **Design Improvements**:
   - `TeacherDashboard`: 반응형 레이아웃 적용 (모바일 대응), 테이블 스크롤 및 버튼 텍스트 축약(배정) 처리.

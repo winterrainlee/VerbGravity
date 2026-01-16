@@ -79,8 +79,28 @@ def init_db():
         )
     """)
     
+    # ---------------------------------------------------------
+    # Schema Migration (Hotfix for v1.1.1)
+    # ---------------------------------------------------------
+    check_and_migrate_schema(cursor)
+    
     conn.commit()
     conn.close()
+
+def check_and_migrate_schema(cursor):
+    """Check for missing columns and alter table if necessary."""
+    try:
+        # Check 'sessions' table for 'mode' column
+        cursor.execute("PRAGMA table_info(sessions)")
+        columns = [row[1] for row in cursor.fetchall()]
+        
+        if 'mode' not in columns:
+            print("Migrating: Adding 'mode' column to 'sessions' table...")
+            cursor.execute("ALTER TABLE sessions ADD COLUMN mode TEXT DEFAULT 'FULL'")
+            print("Migration successful.")
+            
+    except Exception as e:
+        print(f"Migration warning: {e}")
 
 @contextmanager
 def get_db():
