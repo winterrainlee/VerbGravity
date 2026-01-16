@@ -3,10 +3,14 @@
  * Centralized API calls for session management
  */
 
-// Get API base URL based on current host
+// Get API base URL based on environment
 const getApiUrl = () => {
-    const host = window.location.hostname;
-    return `http://${host}:8000`;
+    // In production (Fly.io), API is served from the same origin
+    // In development (localhost), API is on port 8000
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:8000';
+    }
+    return ''; // Same origin in production
 };
 
 /**
