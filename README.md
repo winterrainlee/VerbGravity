@@ -24,10 +24,36 @@ VerbGravity는 영어 문장의 핵심 요소인 **Root(동사)** 와 **Subject(
 - 틀린 문장만 모아서 다시 풀어볼 수 있는 복습 기능을 제공합니다.
 - 복습 성공 시 성취감을 주는 격려 메시지와 함께 학습 완료 상태를 추적합니다.
 
-### 4. 세션 유지 및 복구 (Persistence)
+### 4. 난이도별 채점 모드 (Adaptive Grading)
+교사 대시보드에서 학생별 학습 난이도를 설정할 수 있으며, 이에 따라 채점 기준과 문법 가이드 제공 방식이 달라집니다.
+
+- **기초 모드 (Core)**
+  - **채점 기준**: 주어의 핵심 단어(Head)만 찾아도 정답으로 인정합니다.
+  - **문법 가이드**: 복잡한 문장 구조보다는 핵심 성분 찾기에 집중할 수 있도록 돕습니다.
+- **심화 모드 (Full)**
+  - **채점 기준**: 수식어를 포함한 주어구 전체(Span)를 정확히 선택해야 합니다.
+  - **문법 가이드**: 분사 구문, 동명사, 가주어/진주어 등 심화 문법 요소에 대한 **상세한 파싱 예시(Grammar Guide)**를 제공하여, 교사가 의도한 정밀한 분석을 학생들이 수행할 수 있도록 지원합니다.
+
+#### 파싱 및 채점 기준 예시 (Parsing Examples)
+| Type (유형) | Sentence | Root | Subject Head (CORE) | Subject Span (FULL) | Note |
+|---|---|---|---|---|---|
+| **단문** | "The black **cat** sleeps." | `sleeps` | `cat` | `The black cat` | 관사/형용사 포함 |
+| **수동태** | "The big **ball** was thrown." | `thrown` | `ball` | `The big ball` | `nsubjpass` + 수식어 |
+| **중문** | "I **eat** and **read**." | `eat`, `read` | `I` | `I` | 단일 대명사는 확장 없음 |
+| **복문** | "**She** left because **it** rained." | `left`, `rained` | `She`, `it` | `She`, `it` | 종속절 주어 분리 |
+| **부정사구** | "To **win** the match is hard." | `is` | `win` | `To win the match` | **전체 부정사구 인식** |
+| **동명사구** | "**Swimming** in the sea is fun." | `is` | `Swimming` | `Swimming in the sea` | **동명사구 전체 인식** |
+| **분사 수식** | "The car **made** in Korea is good." | `is` | `car` | `The car made in Korea` | **과거분사구(`acl`) 포함** |
+| **조동사** | "I **can** speak English." | `speak` | `I` | `I` | 본동사가 Root |
+| **유도부사** | "There **is** a cat." | `is` | `cat` | `a cat` | `There` 제외, `attr` 인식 |
+| **가주어** | "**It** is hard to study." | `is` | `It` | `It` | 가주어(`It`) 인정 |
+
+*참고: 난이도 설정은 **교사 모드(Teacher Dashboard)**에서 언제든지 변경할 수 있습니다.*
+
+### 5. 세션 유지 및 복구 (Persistence)
 - **SQLite** 백엔드 연동으로 페이지를 새로고침하거나 나중에 다시 접속해도 이전 학습 진행 상황을 그대로 이어갈 수 있습니다.
 
-### 5. 교사용 관리 대시보드 (Teacher Mode)
+### 6. 교사용 관리 대시보드 (Teacher Mode)
 - **로그인**: 관리자 비밀번호를 통해 교사용 화면에 접속합니다.
 - **학생 관리**: 생성된 세션을 특정 학생 이름으로 배정하거나 삭제할 수 있습니다.
 - **학습 통계**: 학생별 정답률(동사/주어), 완료 문장 수, 최근 학습 일시를 한눈에 파악합니다.
