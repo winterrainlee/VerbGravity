@@ -3,6 +3,7 @@ import AppHeader from './components/AppHeader';
 import StartScreen from './components/StartScreen';
 import QuizScreen from './components/QuizScreen';
 import SummaryScreen from './components/SummaryScreen';
+import { useQuizContext } from './context/QuizContext';
 import {
   analyzePassage,
   createSession,
@@ -19,8 +20,8 @@ function App() {
   const [passageData, setPassageData] = useState(null);
   const [sessionId, setSessionId] = useState(null);
   const [savedProgress, setSavedProgress] = useState([]); // 저장된 진행 상황
-  const [quizResults, setQuizResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { dispatch } = useQuizContext();
 
   // 페이지 로드 시 저장된 세션 복원 시도
   useEffect(() => {
@@ -69,7 +70,6 @@ function App() {
       setSavedProgress([]);
 
       setPassageData(data);
-      setQuizResults(null);
       setCurrentScreen('QUIZ');
     } catch (err) {
       console.error(err);
@@ -96,9 +96,13 @@ function App() {
     }
   }, [sessionId]);
 
-  const handleQuizFinish = (results) => {
-    setQuizResults(results);
+  const handleQuizFinish = () => {
     setCurrentScreen('SUMMARY');
+  };
+
+  const handleJumpToSentence = (index) => {
+    dispatch({ type: 'JUMP_TO_SENTENCE', payload: { index, isReview: true } });
+    setCurrentScreen('QUIZ');
   };
 
   const handleRestart = () => {
@@ -107,7 +111,7 @@ function App() {
     setSavedProgress([]);
     setCurrentScreen('START');
     setPassageData(null);
-    setQuizResults(null);
+    dispatch({ type: 'RESET_QUIZ' });
   };
 
   const handleLogin = () => {
@@ -116,7 +120,7 @@ function App() {
 
   return (
     <>
-      <AppHeader onLoginClick={handleLogin} />
+      <AppHeader onLoginClick={handleLogin} onLogoClick={handleRestart} />
       <main className="app-shell">
         {currentScreen === 'START' && (
           <StartScreen onStart={handleStart} isLoading={isLoading} />
@@ -127,13 +131,14 @@ function App() {
             savedProgress={savedProgress}
             onSentenceComplete={handleSentenceComplete}
             onFinish={handleQuizFinish}
+            onRestart={handleRestart}
           />
         )}
-        {currentScreen === 'SUMMARY' && passageData && quizResults && (
+        {currentScreen === 'SUMMARY' && passageData && (
           <SummaryScreen
-            results={quizResults}
             sentences={passageData.sentences}
             onRestart={handleRestart}
+            onJumpToSentence={handleJumpToSentence}
           />
         )}
       </main>

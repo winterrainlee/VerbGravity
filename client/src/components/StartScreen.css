@@ -111,7 +111,7 @@
 
 .action-section {
     position: sticky;
-    bottom: 24px;
+    bottom: 40px;
     display: flex;
     justify-content: center;
 }

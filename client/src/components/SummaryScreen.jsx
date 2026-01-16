@@ -1,11 +1,19 @@
 import { Trophy, RotateCcw, CheckCircle, XCircle, Target } from 'lucide-react';
+import { useQuizContext } from '../context/QuizContext';
 import './SummaryScreen.css';
 
-const SummaryScreen = ({ results, sentences, onRestart }) => {
+const SummaryScreen = ({ sentences, onRestart, onJumpToSentence }) => {
+    const { state } = useQuizContext();
+    const { results } = state;
+
     // Calculate statistics
     const totalSentences = sentences.length;
-    const rootCorrect = results.filter(r => r.rootCorrect).length;
-    const subjectCorrect = results.filter(r => r.subjectCorrect).length;
+
+    // results가 아직 초기화되지 않았을 경우를 대비
+    const currentResults = results.length > 0 ? results : sentences.map(() => ({}));
+
+    const rootCorrect = currentResults.filter(r => r.rootCorrect).length;
+    const subjectCorrect = currentResults.filter(r => r.subjectCorrect).length;
 
     const rootAccuracy = totalSentences > 0 ? Math.round((rootCorrect / totalSentences) * 100) : 0;
     const subjectAccuracy = totalSentences > 0 ? Math.round((subjectCorrect / totalSentences) * 100) : 0;
@@ -14,7 +22,7 @@ const SummaryScreen = ({ results, sentences, onRestart }) => {
         : 0;
 
     // Get incorrect sentences
-    const incorrectSentences = results
+    const incorrectSentences = currentResults
         .map((r, idx) => ({ ...r, index: idx, sentence: sentences[idx] }))
         .filter(r => !r.rootCorrect || !r.subjectCorrect);
 
@@ -74,19 +82,58 @@ const SummaryScreen = ({ results, sentences, onRestart }) => {
                         <XCircle size={18} /> 틀린 문장 ({incorrectSentences.length}개)
                     </h3>
                     <div className="incorrect-list">
-                        {incorrectSentences.map((item) => (
-                            <div key={item.index} className="incorrect-item">
-                                <span className="sentence-num">#{item.index + 1}</span>
-                                <p className="sentence-preview">
-                                    {item.sentence?.text?.slice(0, 60)}
-                                    {item.sentence?.text?.length > 60 ? '...' : ''}
-                                </p>
-                                <div className="error-badges">
-                                    {!item.rootCorrect && <span className="error-badge root">동사</span>}
-                                    {!item.subjectCorrect && <span className="error-badge subject">주어</span>}
+                        {incorrectSentences.map((item) => {
+                            const correctRootId = item.sentence.key.root;
+                            const correctSubjectId = item.sentence.key.subject;
+
+                            const getTokenText = (id) => {
+                                if (id === -1) return '(you 생략)';
+                                return item.sentence.tokens.find(t => t.id === id)?.text || '???';
+                            };
+
+                            return (
+                                <div
+                                    key={item.index}
+                                    className="incorrect-item-container clickable"
+                                    onClick={() => onJumpToSentence && onJumpToSentence(item.index)}
+                                    title="클릭하여 해당 문장으로 이동"
+                                >
+                                    <div className="incorrect-item">
+                                        <span className="sentence-num">#{item.index + 1}</span>
+                                        <p className="sentence-preview">
+                                            {item.sentence?.text}
+                                        </p>
+                                        <div className="error-badges">
+                                            {item.isReviewed && (
+                                                <span className="error-badge review-fixed">
+                                                    <CheckCircle size={14} /> 복습 완료
+                                                </span>
+                                            )}
+                                            {item.rootCorrect === false && <span className="error-badge root">동사</span>}
+                                            {item.subjectCorrect === false && <span className="error-badge subject">주어</span>}
+                                        </div>
+                                    </div>
+                                    <div className="error-details">
+                                        {item.rootCorrect === false && (
+                                            <div className="detail-row">
+                                                <span className="detail-label">동사 오답:</span>
+                                                <span className="wrong">❌ {getTokenText(item.rootWrongTokenId)}</span>
+                                                <span className="arrow">→</span>
+                                                <span className="right">✅ {getTokenText(correctRootId)}</span>
+                                            </div>
+                                        )}
+                                        {item.subjectCorrect === false && (
+                                            <div className="detail-row">
+                                                <span className="detail-label">주어 오답:</span>
+                                                <span className="wrong">❌ {getTokenText(item.subjectWrongTokenId)}</span>
+                                                <span className="arrow">→</span>
+                                                <span className="right">✅ {correctSubjectId === null ? '(you 생략)' : getTokenText(correctSubjectId)}</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             )}

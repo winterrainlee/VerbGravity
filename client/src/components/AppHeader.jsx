@@ -1,16 +1,16 @@
 import { LogIn } from 'lucide-react';
 import './AppHeader.css';
 
-const AppHeader = ({ onLoginClick }) => {
+const AppHeader = ({ onLoginClick, onLogoClick }) => {
   return (
     <header className="app-header">
       <div className="header-inner">
-        <div className="logo">
+        <div className="logo" onClick={onLogoClick}>
           <span role="img" aria-label="sprout">🌱</span>
           <span className="logo-text">VerbGravity</span>
         </div>
-        
-        <button 
+
+        <button
           className="btn btn-text teacher-login-btn"
           onClick={onLoginClick}
         >

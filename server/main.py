@@ -1,16 +1,24 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from models import (
     PassageRequest, AnalysisResponse,
     CreateSessionRequest, SessionResponse, ProgressRequest, ProgressItem
 )
 from nlp.analyzer import analyze_passage
 from db.database import init_db, get_db
+from auth.middleware import limiter
 import uvicorn
 import uuid
 from datetime import datetime
 
 app = FastAPI(title="VerbGravity API")
+
+# Rate Limiter Setup
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Initialize database on startup
 @app.on_event("startup")
@@ -31,12 +39,13 @@ def read_root():
     return {"status": "ok", "message": "VerbGravity API is running"}
 
 @app.post("/api/analyze-passage", response_model=AnalysisResponse)
-def analyze_passage_endpoint(request: PassageRequest):
-    if len(request.passage) > 2000:
+@limiter.limit("30/minute")
+def analyze_passage_endpoint(request: Request, body: PassageRequest):
+    if len(body.passage) > 2000:
         raise HTTPException(status_code=400, detail="Passage is too long (max 2000 chars).")
     
     try:
-        result = analyze_passage(request.passage)
+        result = analyze_passage(body.passage)
         return result
     except Exception as e:
         print(f"Analysis Error: {e}")
@@ -44,7 +53,8 @@ def analyze_passage_endpoint(request: PassageRequest):
 
 # Session APIs
 @app.post("/api/sessions")
-def create_session(request: CreateSessionRequest):
+@limiter.limit("30/minute")
+def create_session(request: Request, body: CreateSessionRequest):
     """Create a new session and return its UUID."""
     session_id = str(uuid.uuid4())
     
@@ -52,14 +62,15 @@ def create_session(request: CreateSessionRequest):
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO sessions (id, passage_text, total_sentences) VALUES (?, ?, ?)",
-            (session_id, request.passage_text, request.total_sentences)
+            (session_id, body.passage_text, body.total_sentences)
         )
         conn.commit()
     
     return {"id": session_id}
 
 @app.get("/api/sessions/{session_id}", response_model=SessionResponse)
-def get_session(session_id: str):
+@limiter.limit("30/minute")
+def get_session(request: Request, session_id: str):
     """Get session info with progress."""
     with get_db() as conn:
         cursor = conn.cursor()
@@ -98,7 +109,8 @@ def get_session(session_id: str):
         )
 
 @app.put("/api/sessions/{session_id}/progress")
-def save_progress(session_id: str, request: ProgressRequest):
+@limiter.limit("60/minute")
+def save_progress(request: Request, session_id: str, body: ProgressRequest):
     """Save progress for a sentence."""
     with get_db() as conn:
         cursor = conn.cursor()
@@ -115,11 +127,11 @@ def save_progress(session_id: str, request: ProgressRequest):
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (
             session_id,
-            request.sentence_index,
-            request.root_answer,
-            request.root_correct,
-            request.subject_answer,
-            request.subject_correct,
+            body.sentence_index,
+            body.root_answer,
+            body.root_correct,
+            body.subject_answer,
+            body.subject_correct,
             datetime.utcnow().isoformat()
         ))
         conn.commit()
