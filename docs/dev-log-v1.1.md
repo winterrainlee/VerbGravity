@@ -36,6 +36,7 @@
 - **Deployed v1.1.1**: DB 스키마 마이그레이션 로직 추가.
   - 배포 환경에서 `stations` 테이블에 `mode` 컬럼 누락으로 인한 500 에러 해결.
   - `database.py`: `check_and_migrate_schema` 함수 구현.
+  - **NLP Fix**: `ccomp` 의존성 중 비정형 동사(VB, VBG 등)이고 보조동사가 없는 경우 Root에서 제외 (목적보어 오인식 방지).
 
 ### 2026-01-16 - 디자인 개선 및 관리 편의성 강화 (v1.1)
 - **Design Improvements**:

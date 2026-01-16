@@ -32,9 +32,16 @@ def find_all_roots(sent) -> List:
             roots.append(child)
     
     # 2. ccomp: 보문절 동사 (so/because 절)
+    # v1.1.2 Hotfix: exclude non-finite verbs (e.g. O.C. like "help them stay")
     for child in sent.root.children:
         if child.dep_ == "ccomp" and child.pos_ == "VERB":
-            roots.append(child)
+            # Finite verbs (VBD, VBP, VBZ) are always clauses -> Keep
+            # Non-finite (VB, VBG, VBN) need 'aux' to be a full clause (e.g. "will go")
+            is_finite = child.tag_ in ["VBD", "VBP", "VBZ"]
+            has_aux = any(c.dep_ in ["aux", "aux:pass"] for c in child.children)
+            
+            if is_finite or has_aux:
+                roots.append(child)
     
     # 문장 순서대로 정렬
     return sorted(roots, key=lambda t: t.i)
