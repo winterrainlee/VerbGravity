@@ -64,21 +64,28 @@ const GrammarGuideModal = ({ isOpen, onClose }) => {
                                     <td>접속사(and)로 연결된<br />두 동사 모두 정답</td>
                                 </tr>
                                 <tr>
-                                    <td className="type-cell">복문<br /><span className="sub-text">(Complex)</span></td>
+                                    <td className="type-cell">복문 (부사절)<br /><span className="sub-text">(Complex)</span></td>
                                     <td>"She <strong>left</strong> because it <strong>rained</strong>."</td>
                                     <td>
                                         <div className="multi-badge">
                                             <span className="badge root">left</span>
-                                            <span className="badge root">rained</span>
+                                            <span className="badge root highlight">rained</span>
                                         </div>
                                     </td>
                                     <td>
                                         <div className="multi-badge">
                                             <span className="badge subject">She</span>
-                                            <span className="badge subject">it</span>
+                                            <span className="badge subject highlight">it</span>
                                         </div>
                                     </td>
-                                    <td>종속절(because)의 동사도<br />Root로 취급</td>
+                                    <td>기초: 주절 동사(left)만<br />심화: 부사절 동사도 정답</td>
+                                </tr>
+                                <tr>
+                                    <td className="type-cell">관계절<br /><span className="sub-text">(Relative)</span></td>
+                                    <td>"The <strong>man</strong> who lives here <strong>is</strong> kind."</td>
+                                    <td><span className="badge root">is</span></td>
+                                    <td><span className="badge subject">man</span></td>
+                                    <td>관계절(who...)은<br />주어구(Span)에서 제외</td>
                                 </tr>
                                 <tr>
                                     <td className="type-cell">부정사구<br /><span className="sub-text">(Phrasal)</span></td>

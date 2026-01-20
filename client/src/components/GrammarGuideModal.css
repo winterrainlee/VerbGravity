@@ -144,6 +144,17 @@
     color: #008b8b;
 }
 
+.badge.highlight {
+    border: 1.5px dashed #2d3436;
+    opacity: 0.8;
+}
+
+.badge.highlight::after {
+    content: " (심화)";
+    font-size: 0.7rem;
+    margin-left: 2px;
+}
+
 .multi-badge {
     display: flex;
     flex-direction: column;
