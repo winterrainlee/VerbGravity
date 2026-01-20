@@ -21,7 +21,12 @@ description: 배포 전 체크리스트 및 배포 절차 실행
 1. **설계 문서 최신화**: 이번 버전의 변경 사항을 `docs/` 폴더 내 문서에 반영합니다.
    - `architecture.md`: 시스템 구조나 데이터 스키마 변경 시 (파일이 없으면 새로 생성)
    - `layout-vX.Y.md`: UI/UX 변경 시 (파일이 없으면 새로 생성)
-2. **학습 가이드 동기화**: NLP 분석 엔진이 고도화되거나 원칙이 바뀌었다면, `README.md`와 `GrammarGuideModal.jsx`에 해당 내용이 반영되었는지 반드시 확인합니다.
+2. **NLP 로직 동기화**: NLP 분석 엔진이 고도화되거나 원칙이 바뀌었다면, 다음 파일들이 모두 반영되었는지 반드시 확인합니다:
+   - `docs/architecture.md`: 설계 문서 내 NLP 로직 설명
+   - `README.md`: 파싱 예시 표
+   - `client/src/components/GrammarGuideModal.jsx`: 앱 내 학습 가이드
+   - `client/src/hooks/useQuiz.js`: 정답 비교 로직 (필요 시)
+   - `tests/test_nlp_cases.py`, `tests/test_relative_clauses.py`: 테스트 케이스
 
 ## 3단계: 릴리즈 노트 작성
 1. `docs/logs/release/release-notes-vX.Y.Z.md` 파일을 생성합니다.

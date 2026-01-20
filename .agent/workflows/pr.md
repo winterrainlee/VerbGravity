@@ -8,7 +8,12 @@ description: 작업 완료(PR) 자동화 (테스트, PR 초안, 교훈 기록)
 
 ## 1단계: 기본 검증
 1. `npm run dev` 명령어로 서버가 정상 실행되는지 확인(Health Check)하라고 사용자에게 제안합니다.
-2. **NLP 로직 변경 확인**: 만약 `server/nlp/analyzer.py` 등 NLP 로직이 수정되었다면, `README.md`의 파싱 예시와 앱 내 `GrammarGuideModal.jsx`의 가이드 내용도 최신화되었는지 확인합니다.
+2. **NLP 로직 변경 확인**: 만약 `server/nlp/analyzer.py` 등 NLP 로직이 수정되었다면, 다음 파일들이 모두 최신화되었는지 확인합니다:
+   - `docs/architecture.md`: 설계 문서 내 NLP 로직 설명
+   - `README.md`: 파싱 예시 표
+   - `client/src/components/GrammarGuideModal.jsx`: 앱 내 학습 가이드
+   - `client/src/hooks/useQuiz.js`: 정답 비교 로직 (필요 시)
+   - `tests/test_nlp_cases.py`, `tests/test_relative_clauses.py`: 테스트 케이스
 
 ## 2단계: PR 초안 파일 생성
 1. 현재 날짜와 기능명을 포함한 파일명으로 PR 초안을 생성합니다.
@@ -23,7 +28,7 @@ description: 작업 완료(PR) 자동화 (테스트, PR 초안, 교훈 기록)
 
      ## 2. 검증 결과
      - [x] npm run dev 실행 확인
-     - [ ] NLP 로직 변경에 따른 가이드(README, GrammarGuide) 업데이트 여부
+     - [ ] NLP 로직 변경 시 동기화 확인 (Architecture, README, GrammarGuide, useQuiz, Tests)
      - [ ] (추가 검증 내용)
 
      ## 3. Review Point
