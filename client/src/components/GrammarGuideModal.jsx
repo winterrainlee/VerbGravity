@@ -41,15 +41,13 @@ const GrammarGuideModal = ({ isOpen, onClose }) => {
                                     <td className="type-cell">단문<br /><span className="sub-text">(Simple)</span></td>
                                     <td>"The black <strong>cat</strong> sleeps."</td>
                                     <td><span className="badge root">sleeps</span></td>
-                                    <td><span className="badge subject">cat</span></td>
-                                    <td>가장 기본적인 구조</td>
-                                </tr>
-                                <tr>
-                                    <td className="type-cell">수동태<br /><span className="sub-text">(Passive)</span></td>
-                                    <td>"The ball <strong>was thrown</strong>."</td>
-                                    <td><span className="badge root">thrown</span></td>
-                                    <td><span className="badge subject">ball</span></td>
-                                    <td>동작을 당하는 대상이 주어</td>
+                                    <td>
+                                        <div className="multi-badge">
+                                            <span className="badge subject highlight">The black</span>
+                                            <span className="badge subject">cat</span>
+                                        </div>
+                                    </td>
+                                    <td>심화: 주어구 전체 확장</td>
                                 </tr>
                                 <tr>
                                     <td className="type-cell">중문 (병렬)<br /><span className="sub-text">(Compound)</span></td>
@@ -61,10 +59,10 @@ const GrammarGuideModal = ({ isOpen, onClose }) => {
                                         </div>
                                     </td>
                                     <td><span className="badge subject">I</span></td>
-                                    <td>기초: 첫 번째 동사만 정답<br />심화: 병렬된 모든 동사 정답</td>
+                                    <td>심화: 병렬 연관 동사 추가</td>
                                 </tr>
                                 <tr>
-                                    <td className="type-cell">복문 (부사절)<br /><span className="sub-text">(Complex)</span></td>
+                                    <td className="type-cell">부사절<br /><span className="sub-text">(Complex)</span></td>
                                     <td>"She <strong>left</strong> because it <strong>rained</strong>."</td>
                                     <td>
                                         <div className="multi-badge">
@@ -78,48 +76,48 @@ const GrammarGuideModal = ({ isOpen, onClose }) => {
                                             <span className="badge subject highlight">it</span>
                                         </div>
                                     </td>
-                                    <td>기초: 주절 동사(left)만<br />심화: 부사절 동사도 정답</td>
+                                    <td>심화: 부사절 내부 성분 추가</td>
                                 </tr>
                                 <tr>
                                     <td className="type-cell">관계절<br /><span className="sub-text">(Relative)</span></td>
                                     <td>"The <strong>man</strong> who lives here <strong>is</strong> kind."</td>
-                                    <td><span className="badge root">is</span></td>
-                                    <td><span className="badge subject">man</span></td>
-                                    <td>관계절(who...)은<br />주어구(Span)에서 제외</td>
+                                    <td>
+                                        <div className="multi-badge">
+                                            <span className="badge root">is</span>
+                                            <span className="badge root highlight">lives</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className="multi-badge">
+                                            <span className="badge subject highlight">The</span>
+                                            <span className="badge subject">man</span>
+                                            <span className="badge subject highlight">who</span>
+                                        </div>
+                                    </td>
+                                    <td>관계절은 독립 성분으로 분석<br />(주어구 범위에는 제외)</td>
                                 </tr>
                                 <tr>
-                                    <td className="type-cell">부정사구<br /><span className="sub-text">(Phrasal)</span></td>
+                                    <td className="type-cell">준동사구<br /><span className="sub-text">(Phrasal)</span></td>
                                     <td>"To <strong>win</strong> is hard."</td>
                                     <td><span className="badge root">is</span></td>
-                                    <td><span className="badge subject">win</span></td>
-                                    <td>To+동사가 주어 역할<br />(심화: 주어구 전체 선택)</td>
-                                </tr>
-                                <tr>
-                                    <td className="type-cell">동명사구<br /><span className="sub-text">(Gerund)</span></td>
-                                    <td>"<strong>Swimming</strong> is fun."</td>
-                                    <td><span className="badge root">is</span></td>
-                                    <td><span className="badge subject">Swimming</span></td>
-                                    <td>동사+ing가 주어 역할</td>
-                                </tr>
-                                <tr>
-                                    <td className="type-cell">분사 수식<br /><span className="sub-text">(Participle)</span></td>
-                                    <td>"The car <strong>made</strong> in Korea <strong>is</strong> good."</td>
-                                    <td><span className="badge root">is</span> (본동사)</td>
-                                    <td><span className="badge subject">car</span></td>
-                                    <td>분사(made)는 수식어,<br />본동사(is)가 Root</td>
-                                </tr>
-                                <tr>
-                                    <td className="type-cell">조동사<br /><span className="sub-text">(Auxiliary)</span></td>
-                                    <td>"You <strong>can do</strong> it."</td>
-                                    <td><span className="badge root">do</span></td>
-                                    <td><span className="badge subject">You</span></td>
-                                    <td>조동사(can)는 본동사(do)를 도움.<br />본동사가 Root</td>
+                                    <td>
+                                        <div className="multi-badge">
+                                            <span className="badge subject highlight">To</span>
+                                            <span className="badge subject">win</span>
+                                        </div>
+                                    </td>
+                                    <td>심화: 구 전체(Span) 확장</td>
                                 </tr>
                                 <tr>
                                     <td className="type-cell">유도부사<br /><span className="sub-text">(Expletive)</span></td>
                                     <td>"There <strong>is</strong> a <strong>dog</strong>."</td>
                                     <td><span className="badge root">is</span></td>
-                                    <td><span className="badge subject">dog</span></td>
+                                    <td>
+                                        <div className="multi-badge">
+                                            <span className="badge subject highlight">a</span>
+                                            <span className="badge subject">dog</span>
+                                        </div>
+                                    </td>
                                     <td>Here/There 구문은<br />동사 뒤에 주어가 위치</td>
                                 </tr>
                                 <tr>
@@ -127,7 +125,7 @@ const GrammarGuideModal = ({ isOpen, onClose }) => {
                                     <td>"It <strong>is</strong> hard <strong>to study</strong>."</td>
                                     <td><span className="badge root">is</span></td>
                                     <td><span className="badge subject">It</span></td>
-                                    <td>형식상 주어 It을 선택<br />(진주어는 뒤에 있음)</td>
+                                    <td>형식상 주어 It을 선택</td>
                                 </tr>
                             </tbody>
                         </table>

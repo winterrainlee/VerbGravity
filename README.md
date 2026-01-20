@@ -35,19 +35,14 @@ VerbGravity는 영어 문장의 핵심 요소인 **Root(동사)** 와 **Subject(
   - **문법 가이드**: 분사 구문, 동명사, 가주어/진주어 등 심화 문법 요소에 대한 **상세한 파싱 예시(Grammar Guide)**를 제공하여, 교사가 의도한 정밀한 분석을 학생들이 수행할 수 있도록 지원합니다.
 
 #### 파싱 및 채점 기준 예시 (Parsing Examples)
-| Type (유형) | Sentence | Root | Subject Head (CORE) | Subject Span (FULL) | Note |
-|---|---|---|---|---|---|
-| **단문** | "The black **cat** sleeps." | `sleeps` | `cat` | `The black cat` | 관사/형용사 포함 |
-| **수동태** | "The big **ball** was thrown." | `thrown` | `ball` | `The big ball` | `nsubjpass` + 수식어 |
-| **중문 (병렬)** | "I **eat** and **read**." | `eat`, `read` | `I` | `I` | **심화: 병렬 단어 모두 포함** |
-| **복문 (부사절)** | "**She** left because **it** rained." | `left`, `rained` | `She` | `She`, `it` | **심화: 부사절 동사/주어 포함** |
-| **관계절** | "The **man** who lives here **is** kind." | `is` | `man` | `The man` | **관계절(`who`)은 주어구에서 제외** |
-| **부정사구** | "To **win** the match is hard." | `is` | `win` | `To win the match` | **전체 부정사구 인식** |
-| **동명사구** | "**Swimming** in the sea is fun." | `is` | `Swimming` | `Swimming in the sea` | **동명사구 전체 인식** |
-| **분사 수식** | "The car **made** in Korea is good." | `is` | `car` | `The car made in Korea` | **과거분사구(`acl`) 포함** |
-| **조동사** | "I **can** speak English." | `speak` | `I` | `I` | 본동사가 Root |
-| **유도부사** | "There **is** a cat." | `is` | `cat` | `a cat` | `There` 제외, `attr` 인식 |
-| **가주어** | "**It** is hard to study." | `is` | `It` | `It` | 가주어(`It`) 인정 |
+| 유형 (Type) | 예시 문장 (Sentence) | Root (동사) | Subject (주어) | 비고 |
+|:---|:---|:---|:---|:---|
+| **단문** | "The black **cat** sleeps." | `sleeps` | **The black** (심화) `cat` | 심화: 주어구 전체 확장 |
+| **중문** | "I **eat** and **read**." | `eat`, **read** (심화) | `I` | 심화: 병렬 동사 추가 |
+| **부사절** | "She **left** because it **rained**." | `left`, **rained** (심화) | `She`, **it** (심화) | 심화: 부사절 내부 성분 추가 |
+| **관계절** | "The **man** who lives here **is** kind." | `is`, **lives** (심화) | **The** (심화) `man`, **who** (심화) | 관계절은 독립 성분으로 취급 |
+| **준동사구** | "**To win** / **Swimming** is hard." | `is` | **To** (심화) `win` / `Swimming` | 심화: 구 전체(Span) 확장 |
+| **가주어** | "**It** is hard to study." | `is` | `It` | 가주어(It)를 핵심 주어로 선택 |
 
 *참고: 난이도 설정은 **교사 모드(Teacher Dashboard)**에서 언제든지 변경할 수 있습니다.*
 
