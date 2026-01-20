@@ -40,7 +40,7 @@ VerbGravity는 영어 문장의 핵심 요소인 **Root(동사)** 와 **Subject(
 | **단문** | "The black **cat** sleeps." | `sleeps` | **The black** (심화) `cat` | 심화: 주어구 전체 확장 |
 | **중문** | "I **eat** and **read**." | `eat`, **read** (심화) | `I` | 심화: 병렬 동사 추가 |
 | **부사절** | "She **left** because it **rained**." | `left`, **rained** (심화) | `She`, **it** (심화) | 심화: 부사절 내부 성분 추가 |
-| **관계절** | "The **man** who lives here **is** kind." | `is`, **lives** (심화) | **The** (심화) `man`, **who** (심화) | 관계절은 독립 성분으로 취급 |
+| **관계절** | "The **man** who lives here **is** kind." | `is` | **The** (심화) `man` | **관계절(수식어)은 주어구/동사에서 제외** |
 | **준동사구** | "**To win** / **Swimming** is hard." | `is` | **To** (심화) `win` / `Swimming` | 심화: 구 전체(Span) 확장 |
 | **가주어** | "**It** is hard to study." | `is` | `It` | 가주어(It)를 핵심 주어로 선택 |
 

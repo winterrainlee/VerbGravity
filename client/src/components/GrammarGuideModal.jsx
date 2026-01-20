@@ -81,20 +81,14 @@ const GrammarGuideModal = ({ isOpen, onClose }) => {
                                 <tr>
                                     <td className="type-cell">관계절<br /><span className="sub-text">(Relative)</span></td>
                                     <td>"The <strong>man</strong> who lives here <strong>is</strong> kind."</td>
-                                    <td>
-                                        <div className="multi-badge">
-                                            <span className="badge root">is</span>
-                                            <span className="badge root highlight">lives</span>
-                                        </div>
-                                    </td>
+                                    <td><span className="badge root">is</span></td>
                                     <td>
                                         <div className="multi-badge">
                                             <span className="badge subject highlight">The</span>
                                             <span className="badge subject">man</span>
-                                            <span className="badge subject highlight">who</span>
                                         </div>
                                     </td>
-                                    <td>관계절은 독립 성분으로 분석<br />(주어구 범위에는 제외)</td>
+                                    <td><strong style={{ color: '#e17055' }}>관계절(lives...) 제외</strong>: 수식어이므로 뼈대에서 분리</td>
                                 </tr>
                                 <tr>
                                     <td className="type-cell">준동사구<br /><span className="sub-text">(Phrasal)</span></td>
