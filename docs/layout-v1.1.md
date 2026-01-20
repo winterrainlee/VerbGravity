@@ -43,7 +43,7 @@ The main interaction screen. Layout changes depending on the step (ROOT -> SUBJE
 +-------------------------------------------------------+
 |                                                       |
 |  [Step Indicator: ■ ■ □ □ (Sentence 2/4)]             |
-|  Current Step: [ 동사(Root) 찾기 / 주어(Subject) 찾기 ] |
+|  Current Step: [ 뿌리 동사(Root Verb) 찾기 / 주어(Subject) 찾기 ] |
 |                                                       |
 +-------------------------------------------------------+
 |  Passage Display Area (Current sentence highlighted)  |

@@ -21,7 +21,7 @@ const GrammarGuideModal = ({ isOpen, onClose }) => {
 
                 <div className="grammar-modal-body">
                     <p className="guide-intro">
-                        VerbGravity는 문장의 <strong>동사(Root)</strong>와 <strong>주어(Subject)</strong>를 찾는 훈련입니다.<br />
+                        VerbGravity는 문장의 <strong>뿌리 동사(Root Verb)</strong>와 <strong>주어(Subject)</strong>를 찾는 훈련입니다.<br />
                         아래 예시를 통해 다양한 문장 구조에서 정답을 찾는 방법을 확인하세요.
                     </p>
 
@@ -31,7 +31,7 @@ const GrammarGuideModal = ({ isOpen, onClose }) => {
                                 <tr>
                                     <th>유형 (Type)</th>
                                     <th>문장 (Sentence)</th>
-                                    <th>Root (동사)</th>
+                                    <th>뿌리 동사 (Root Verb)</th>
                                     <th>Subject (주어)</th>
                                     <th>비고</th>
                                 </tr>

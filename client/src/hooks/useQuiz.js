@@ -98,10 +98,10 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
                     payload: {
                         isCorrect: true,
                         message: isReviewMode
-                            ? '정확해요! 핵심 동사를 찾아냈습니다. 이제 주어도 확인해볼까요?'
+                            ? '정확해요! 뿌리 동사(Root Verb)를 찾아냈습니다. 이제 주어도 확인해볼까요?'
                             : expectedRoots.length > 1
-                                ? `정답입니다! ${expectedRoots.length}개의 핵심 동사를 모두 찾았습니다.`
-                                : '정답입니다! 핵심 동사를 찾았습니다.'
+                                ? `정답입니다! ${expectedRoots.length}개의 뿌리 동사(Root Verb)를 모두 찾았습니다.`
+                                : '정답입니다! 뿌리 동사(Root Verb)를 찾았습니다.'
                     }
                 });
                 setTimeout(() => {

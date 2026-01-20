@@ -34,8 +34,8 @@ VerbGravity는 영어 문장의 핵심 요소인 **Root(동사)** 와 **Subject(
   - **채점 기준**: 수식어를 포함한 주어구 전체(Span)를 정확히 선택해야 합니다.
   - **문법 가이드**: 분사 구문, 동명사, 가주어/진주어 등 심화 문법 요소에 대한 **상세한 파싱 예시(Grammar Guide)**를 제공하여, 교사가 의도한 정밀한 분석을 학생들이 수행할 수 있도록 지원합니다.
 
-#### 파싱 및 채점 기준 예시 (Parsing Examples)
-| 유형 (Type) | 예시 문장 (Sentence) | Root (동사) | Subject (주어) | 비고 |
+#### Parsing Examples (v1.1.2 Unified Rules)
+| 유형 (Type) | 예시 문장 (Sentence) | Root Verb (뿌리 동사) | Subject (주어) | 비고 |
 |:---|:---|:---|:---|:---|
 | **단문** | "The black **cat** sleeps." | `sleeps` | **The black** (심화) `cat` | 심화: 주어구 전체 확장 |
 | **중문** | "I **eat** and **read**." | `eat`, **read** (심화) | `I` | 심화: 병렬 동사 추가 |

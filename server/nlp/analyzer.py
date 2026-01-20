@@ -17,7 +17,7 @@ def load_model():
 
 
 def find_all_roots(sent) -> List:
-    """문장에서 모든 핵심 동사를 찾는다.
+    """문장에서 모든 뿌리 동사(Root Verb)를 찾는다.
     
     패턴:
     - sent.root: 문장의 기본 root

@@ -12,7 +12,7 @@ const initialState = {
     step: QuizStep.ROOT,
     selections: [], // v1.1: 복수 선택 지원 (배열)
     isChecked: false,
-    feedback: { type: 'info', message: '버튼을 눌러 핵심 동사(Root)를 찾아보세요.' },
+    feedback: { type: 'info', message: '버튼을 눌러 뿌리 동사(Root Verb)를 찾아보세요.' },
     isReviewMode: false,
     results: [],
 };
@@ -82,7 +82,7 @@ function quizReducer(state, action) {
                 step: QuizStep.ROOT,
                 selections: [], // 배열 초기화
                 isChecked: false,
-                feedback: { type: 'info', message: '다음 문장의 핵심 동사를 찾아보세요.' }
+                feedback: { type: 'info', message: '다음 문장의 뿌리 동사(Root Verb)를 찾아보세요.' }
             };
 
         case 'PREV_SENTENCE':
@@ -105,7 +105,7 @@ function quizReducer(state, action) {
                 isReviewMode: action.payload.isReview || false,
                 feedback: {
                     type: 'info',
-                    message: action.payload.isReview ? '복습 모드입니다. 틀린 문장을 다시 풀어보세요.' : '문장으로 이동했습니다. 핵심 동사를 확인해보세요.'
+                    message: action.payload.isReview ? '복습 모드입니다. 틀린 문장을 다시 풀어보세요.' : '문장으로 이동했습니다. 뿌리 동사(Root Verb)를 확인해보세요.'
                 }
             };
 

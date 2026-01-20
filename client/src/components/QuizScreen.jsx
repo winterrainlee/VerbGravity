@@ -50,12 +50,12 @@ const QuizScreen = (props) => {
 
     const handleModeClick = () => {
         if (gradingMode === 'CORE') {
-            toast('🌱 [기초 모드] \n핵심 동사와 주어가 문장에 하나씩만 존재합니다.', {
+            toast('🌱 [기초 모드] \n뿌리 동사(Root Verb)와 주어가 문장에 하나씩만 존재합니다.', {
                 icon: '🟢',
                 style: { borderRadius: '10px', background: '#f0fdf4', color: '#15803d' },
             });
         } else {
-            toast('🌳 [심화 모드] \n핵심 동사와 주어가 문장에 여러 개 있을 수 있으며, 주어도 주어구 전체를 정확하게 선택해야 합니다.', {
+            toast('🌳 [심화 모드] \n뿌리 동사(Root Verb)와 주어가 문장에 여러 개 있을 수 있으며, 주어도 주어구 전체를 정확하게 선택해야 합니다.', {
                 icon: '🟠',
                 style: { borderRadius: '10px', background: '#fefce8', color: '#a16207' },
             });
@@ -69,7 +69,7 @@ const QuizScreen = (props) => {
                 <div className="header-top-row">
                     <div className="stage-indicator">
                         <span className={`stage-badge ${step.toLowerCase()}`}>
-                            {step === QuizStep.ROOT ? '동사(ROOT)' : '주어(SUBJECT)'}
+                            {step === QuizStep.ROOT ? '뿌리 동사(ROOT)' : '주어(SUBJECT)'}
                         </span>
                         {isReviewMode && (
                             <span className="review-badge">복습 중</span>

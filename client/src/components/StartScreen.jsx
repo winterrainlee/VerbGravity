@@ -44,7 +44,7 @@ const StartScreen = ({ onStart, isLoading }) => {
             <div className="intro-section">
                 <h1 className="title">영어 문장 구조 훈련</h1>
                 <p className="subtitle">
-                    지문을 입력하면 문장별로 <span className="highlight">동사(Root)</span>와 <span className="highlight">주어(Subject)</span>를 찾는 훈련을 시작합니다.
+                    지문을 입력하면 문장별로 <span className="highlight">뿌리 동사(Root Verb)</span>와 <span className="highlight">주어(Subject)</span>를 찾는 훈련을 시작합니다.
                 </p>
                 <div className="mode-indicator">
                     <span className={`mode-badge ${getGradingMode().toLowerCase()}`}>

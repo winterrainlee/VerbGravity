@@ -62,16 +62,16 @@ server/
 ```
 
 ### 4.2. 주요 모듈
-*   **NLP Analyzer (`analyzer.py`)**: spaCy를 사용하여 문장의 루트(동사)와 주어를 식별합니다. v1.1.2부터 **기초(CORE)/심화(FULL)** 모드별 필터링 로직이 서버 사이드에 통합되었습니다.
+*   **NLP Analyzer (`analyzer.py`)**: spaCy를 사용하여 문장의 뿌리 동사(Root Verb)와 주어를 식별합니다. v1.1.2부터 **기초(CORE)/심화(FULL)** 모드별 필터링 로직이 서버 사이드에 통합되었습니다.
 *   **NLP Error Tracker (`error_tracker.py`)**: 분석 실패 시 문장 데이터와 에러 타입을 `logs/nlp_errors.log`에 기록하여 품질 개선의 기반을 제공합니다.
 *   **Database Interface (`database.py`)**: Context Manager 패턴으로 DB 세션을 관리하며, **WAL(Write-Ahead Logging)** 모드를 활성화하여 동시성 문제를 제어합니다.
 
 ### 4.3. API 설계 (RESTful)
 *   **Public**:
-    *   `POST /api/analyze-passage`: 지문 분석 및 퀴즈 데이터 생성 (`mode` 포함)
+    *   `POST /api/analyze-passage`: 지문 분석 및 퀴즈 데이터 생성
     *   `GET /api/passages`: 저장된 지문 목록 조회
 *   **Session**:
-    *   `POST /api/sessions`: 학습 세션 생성 (`mode` 기록)
+    *   `POST /api/sessions`: 학습 세션 생성
     *   `GET /api/sessions/{id}`: 세션 복원
     *   `PUT /api/sessions/{id}/progress`: 학습 진행 상황 저장
 *   **Management (Teacher/Admin)**:
@@ -90,7 +90,7 @@ spaCy(`en_core_web_sm`)를 활용하여 문장의 핵심 구조를 분석합니�
 
 1.  **Tokenization**: 입력 문단을 문장 단위로 분리하고, 각 문장을 토큰화합니다.
 2.  **Root Identification (`find_all_roots`)**:
-    *   `sent.root`: 문장의 최상위 루트(주절의 동사)를 먼저 찾습니다.
+    *   `sent.root`: 문장의 최상위 뿌리 동사(Root Verb)를 먼저 찾습니다.
     *   `conj` Dependency: 등위 접속사(and, but, or)로 연결된 병렬 동사를 추가로 탐색합니다.
     *   `ccomp`, `advcl` Dependency: 보문절 및 **부사절(because, if, when 등)** 동사를 탐색하여 복합문의 구조를 파악합니다.
 3.  **Mode-specific Filtering (`analyze_passage`)**:
@@ -102,7 +102,7 @@ spaCy(`en_core_web_sm`)를 활용하여 문장의 핵심 구조를 분석합니�
 
 #### Parsing Examples
 #### Parsing Examples (v1.1.2 Unified Rules)
-| 유형 (Type) | 예시 문장 (Sentence) | Root (동사) | Subject (주어) | 비고 |
+| 유형 (Type) | 예시 문장 (Sentence) | Root Verb (뿌리 동사) | Subject (주어) | 비고 |
 |:---|:---|:---|:---|:---|
 | **단문** | "The black **cat** sleeps." | `sleeps` | **The black** (심화) `cat` | 심화: 주어구 전체 확장 |
 | **중문** | "I **eat** and **read**." | `eat`, **read** (심화) | `I` | 심화: 병렬 동사 추가 |
