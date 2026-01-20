@@ -52,16 +52,16 @@ const GrammarGuideModal = ({ isOpen, onClose }) => {
                                     <td>동작을 당하는 대상이 주어</td>
                                 </tr>
                                 <tr>
-                                    <td className="type-cell">중문<br /><span className="sub-text">(Compound)</span></td>
+                                    <td className="type-cell">중문 (병렬)<br /><span className="sub-text">(Compound)</span></td>
                                     <td>"I <strong>eat</strong> and <strong>read</strong>."</td>
                                     <td>
                                         <div className="multi-badge">
                                             <span className="badge root">eat</span>
-                                            <span className="badge root">read</span>
+                                            <span className="badge root highlight">read</span>
                                         </div>
                                     </td>
                                     <td><span className="badge subject">I</span></td>
-                                    <td>접속사(and)로 연결된<br />두 동사 모두 정답</td>
+                                    <td>기초: 첫 번째 동사만 정답<br />심화: 병렬된 모든 동사 정답</td>
                                 </tr>
                                 <tr>
                                     <td className="type-cell">복문 (부사절)<br /><span className="sub-text">(Complex)</span></td>

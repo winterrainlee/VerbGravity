@@ -39,7 +39,7 @@ VerbGravity는 영어 문장의 핵심 요소인 **Root(동사)** 와 **Subject(
 |---|---|---|---|---|---|
 | **단문** | "The black **cat** sleeps." | `sleeps` | `cat` | `The black cat` | 관사/형용사 포함 |
 | **수동태** | "The big **ball** was thrown." | `thrown` | `ball` | `The big ball` | `nsubjpass` + 수식어 |
-| **중문** | "I **eat** and **read**." | `eat`, `read` | `I` | `I` | 단일 대명사는 확장 없음 |
+| **중문 (병렬)** | "I **eat** and **read**." | `eat`, `read` | `I` | `I` | **심화: 병렬 단어 모두 포함** |
 | **복문 (부사절)** | "**She** left because **it** rained." | `left`, `rained` | `She` | `She`, `it` | **심화: 부사절 동사/주어 포함** |
 | **관계절** | "The **man** who lives here **is** kind." | `is` | `man` | `The man` | **관계절(`who`)은 주어구에서 제외** |
 | **부정사구** | "To **win** the match is hard." | `is` | `win` | `To win the match` | **전체 부정사구 인식** |
