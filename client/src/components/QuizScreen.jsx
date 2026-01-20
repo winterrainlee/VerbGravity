@@ -50,12 +50,12 @@ const QuizScreen = (props) => {
 
     const handleModeClick = () => {
         if (gradingMode === 'CORE') {
-            toast('🌱 [기초 모드] \n핵심 주어(Head)와 동사만 찾으면 정답입니다.', {
+            toast('🌱 [기초 모드] \n핵심 동사와 주어가 문장에 하나씩만 존재합니다.', {
                 icon: '🟢',
                 style: { borderRadius: '10px', background: '#f0fdf4', color: '#15803d' },
             });
         } else {
-            toast('🌳 [심화 모드] \n주어구 전체(Span)를 선택해야 정답이며 힌트가 없습니다.', {
+            toast('🌳 [심화 모드] \n핵심 동사와 주어가 문장에 여러 개 있을 수 있으며, 주어도 주어구 전체를 정확하게 선택해야 합니다.', {
                 icon: '🟠',
                 style: { borderRadius: '10px', background: '#fefce8', color: '#a16207' },
             });
@@ -136,9 +136,9 @@ const QuizScreen = (props) => {
                                             tokenClass += ' solved-root';
                                         }
 
-                                        // v1.1.2: 채점 모드에 따른 힌트(밑줄) 표시 (컴포넌트 상단에서 캐싱된 값 사용)
-                                        // 기초(CORE) 모드에서만 핵심 주어 밑줄 표시, 심화(FULL) 모드에서는 힌트 제거
-                                        const isHintVisible = gradingMode === 'CORE' && subjects.includes(token.id);
+                                        // v1.1.2: 채점 모드에 따른 힌트(밑줄) 표시
+                                        // 기초(CORE) 모드에서 주어구 전체에 밑줄 표시, 심화(FULL) 모드에서는 힌트 제거
+                                        const isHintVisible = gradingMode === 'CORE' && subjectSpanTokens.includes(token.id);
 
                                         if (step === QuizStep.SUBJECT && isHintVisible) {
                                             tokenClass += ' hint-underline';

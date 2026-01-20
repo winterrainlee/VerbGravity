@@ -51,7 +51,7 @@ def analyze_passage_endpoint(request: Request, body: PassageRequest):
         raise HTTPException(status_code=400, detail="Passage is too long (max 2000 chars).")
     
     try:
-        result = analyze_passage(body.passage)
+        result = analyze_passage(body.passage, mode=body.mode)
         return result
     except Exception as e:
         print(f"Analysis Error: {e}")

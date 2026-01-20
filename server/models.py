@@ -24,10 +24,12 @@ class SentenceItem(BaseModel):
 
 class AnalysisMeta(BaseModel):
     totalSentences: int
-    model: str
+    nlp_model: str
 
 class PassageRequest(BaseModel):
     passage: str
+    mode: str = 'FULL'
+    mode: str = 'FULL'
 
 class AnalysisResponse(BaseModel):
     sentences: List[SentenceItem]

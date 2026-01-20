@@ -26,6 +26,28 @@
     text-align: center;
 }
 
+.mode-indicator {
+    margin-top: 16px;
+}
+
+.mode-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.mode-badge.core {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.mode-badge.full {
+    background-color: #fef9c3;
+    color: #a16207;
+}
+
 .title {
     font-size: 1.75rem;
     font-weight: 800;

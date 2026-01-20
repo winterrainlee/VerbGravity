@@ -22,10 +22,11 @@ const getApiUrl = () => {
  * Analyze passage using NLP
  */
 export async function analyzePassage(passage) {
+    const mode = getGradingMode();
     const response = await fetch(`${getApiUrl()}/api/analyze-passage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ passage }),
+        body: JSON.stringify({ passage, mode }),
     });
 
     if (!response.ok) {
