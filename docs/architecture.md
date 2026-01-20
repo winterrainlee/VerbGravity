@@ -62,15 +62,16 @@ server/
 ```
 
 ### 4.2. 주요 모듈
-*   **NLP Analyzer (`analyzer.py`)**: spaCy를 사용하여 문장의 루트(동사)와 주어를 식별합니다. 복합문(and/but)과 종속절을 처리할 수 있는 재귀적 탐색 로직을 포함합니다.
+*   **NLP Analyzer (`analyzer.py`)**: spaCy를 사용하여 문장의 루트(동사)와 주어를 식별합니다. v1.1.2부터 **기초(CORE)/심화(FULL)** 모드별 필터링 로직이 서버 사이드에 통합되었습니다.
+*   **NLP Error Tracker (`error_tracker.py`)**: 분석 실패 시 문장 데이터와 에러 타입을 `logs/nlp_errors.log`에 기록하여 품질 개선의 기반을 제공합니다.
 *   **Database Interface (`database.py`)**: Context Manager 패턴으로 DB 세션을 관리하며, **WAL(Write-Ahead Logging)** 모드를 활성화하여 동시성 문제를 제어합니다.
 
 ### 4.3. API 설계 (RESTful)
 *   **Public**:
-    *   `POST /api/analyze-passage`: 지문 분석 및 퀴즈 데이터 생성
+    *   `POST /api/analyze-passage`: 지문 분석 및 퀴즈 데이터 생성 (`mode` 포함)
     *   `GET /api/passages`: 저장된 지문 목록 조회
 *   **Session**:
-    *   `POST /api/sessions`: 학습 세션 생성
+    *   `POST /api/sessions`: 학습 세션 생성 (`mode` 기록)
     *   `GET /api/sessions/{id}`: 세션 복원
     *   `PUT /api/sessions/{id}/progress`: 학습 진행 상황 저장
 *   **Management (Teacher/Admin)**:
@@ -91,26 +92,26 @@ spaCy(`en_core_web_sm`)를 활용하여 문장의 핵심 구조를 분석합니�
 2.  **Root Identification (`find_all_roots`)**:
     *   `sent.root`: 문장의 최상위 루트(주절의 동사)를 먼저 찾습니다.
     *   `conj` Dependency: 등위 접속사(and, but, or)로 연결된 병렬 동사를 추가로 탐색합니다.
-    *   `ccomp` Dependency: 보문절(clausal complement) 동사를 탐색하여 복합문의 구조를 파악합니다.
-3.  **Subject Mapping (`find_subjects_for_roots`)**:
-    *   식별된 각 Root 동사의 자식 토큰들을 순회하며 주어(`nsubj`, `nsubjpass`, `csubj`)를 찾습니다.
-    *   **Subtree Expansion**: 주어 토큰뿐만 아니라 주어구 전체(`subj.subtree`) 범위를 계산하여 심화 학습 모드(`subjectSpans`)를 지원합니다.
+    *   `ccomp`, `advcl` Dependency: 보문절 및 **부사절(because, if, when 등)** 동사를 탐색하여 복합문의 구조를 파악합니다.
+3.  **Mode-specific Filtering (`analyze_passage`)**:
+    *   **CORE (기초)**: 식별된 여러 Root 중 문장의 최상위 Root 1개와 그에 대응하는 주어(Head) 1개만 반환합니다.
+    *   **FULL (심화)**: 병렬 동사와 종속절 동사를 포함한 모든 Root-Subject 쌍을 반환합니다.
+4.  **Subject Mapping (`find_subjects_for_roots`)**:
+    *   각 Root에 대응하는 주어(`nsubj`, `expl` 등)를 식별합니다.
+    *   **Span Expansion**: 주어 토큰의 subtree를 계산하되, **관계절(`relcl`) 토큰은 제외**하여 주어구의 정밀도를 높였습니다.
 
 #### Parsing Examples
-| Type (유형) | Sentence | Root | Subject Head (CORE) | Subject Span (FULL) | Note |
-|---|---|---|---|---|---|
-| **단문 (Simple)** | "The black **cat** sleeps." | `sleeps` | `cat` | `The black cat` | 관사/형용사 포함 |
-| **수동태 (Passive)** | "The big **ball** was thrown." | `thrown` | `ball` | `The big ball` | `nsubjpass` + 수식어 |
-| **중문 (Compound)** | "I **eat** and **read**." | `eat`, `read` | `I` | `I` | 단일 대명사는 확장 없음 |
-| **복문 (Complex)** | "**She** left because **it** rained." | `left`, `rained` | `She`, `it` | `She`, `it` | 종속절 주어 분리 |
-| **부정사구 (Phrasal)** | "To **win** the match is hard." | `is` | `win` | `To win the match` | **전체 부정사구 인식** |
-| **동명사구 (Gerund)** | "**Swimming** in the sea is fun." | `is` | `Swimming` | `Swimming in the sea` | **동명사구 전체 인식** |
-| **분사 수식 (Participle)** | "The car **made** in Korea is good." | `is` | `car` | `The car made in Korea` | **과거분사구(`acl`) 포함** |
-| **조동사 (Modals)** | "I **can** speak English." | `speak` | `I` | `I` | 조동사(`aux`)는 제외, 본동사가 Root |
-| **유도부사 (Expletive)** | "There **is** a cat." | `is` | `cat` | `a cat` | `expl`(`There`) 제외, `attr`(`cat`) 인식 |
-| **가주어 (Dummy It)** | "**It** is hard to study." | `is` | `It` | `It` | 가주어(`It`)를 Grammatical Subject로 인정 |
+#### Parsing Examples (v1.1.2 Unified Rules)
+| 유형 (Type) | 예시 문장 (Sentence) | Root (동사) | Subject (주어) | 비고 |
+|:---|:---|:---|:---|:---|
+| **단문** | "The black **cat** sleeps." | `sleeps` | **The black** (심화) `cat` | 심화: 주어구 전체 확장 |
+| **중문** | "I **eat** and **read**." | `eat`, **read** (심화) | `I` | 심화: 병렬 동사 추가 |
+| **부사절** | "She **left** because it **rained**." | `left`, **rained** (심화) | `She`, **it** (심화) | 심화: 부사절 내부 성분 추가 |
+| **관계절** | "The **man** who lives here **is** kind." | `is`, **lives** (심화) | **The** (심화) `man`, **who** (심화) | 관계절은 독립 성분으로 취급 |
+| **준동사구** | "To **win** is hard." | `is` | **To** (심화) `win` | 심화: 구 전체(Span) 확장 |
+| **가주어** | "**It** is hard to study." | `is` | `It` | 가주어(It)를 핵심 주어로 선택 |
 
-*Note: **CORE 모드**는 Head만 정답으로 인정하고, **FULL 모드**는 Span 전체를 선택해야 정답으로 인정합니다.*
+*Note: **CORE(기초) 모드**는 실선/단일 성분 위주로, **FULL(심화) 모드**는 점선/확장 성분을 포함하여 채점합니다.*
 
 ---
 
