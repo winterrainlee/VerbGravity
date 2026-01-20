@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useQuizContext, QuizStep } from '../context/QuizContext';
+import { getGradingMode } from '../services/api';
 
 // 배열 비교 헬퍼 함수 (순서 무관, 집합 비교)
 const arraysEqual = (arr1, arr2) => {
@@ -20,7 +21,7 @@ export const useQuiz = ({ data, savedProgress = [], onSentenceComplete, onFinish
     // 현재 문장의 정답 개수 (v1.1)
     // 현재 문장의 정답 개수 (v1.1)
     const answerKey = currentSentence.key;
-    const gradingMode = localStorage.getItem('vg_grading_mode') || 'FULL';
+    const gradingMode = getGradingMode();
 
     const expectedRootCount = answerKey.roots?.length || 1;
     // v1.1.1: 채점 모드에 따른 주어 개수 설정

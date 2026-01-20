@@ -1,22 +1,20 @@
 import { useState, useEffect } from 'react';
-import {
-    Users,
-    BookOpen,
-    History,
-    UserPlus,
-    Trash2,
-    MoreVertical,
-    Clock,
-    Target,
-    LogOut,
-    RefreshCw,
-    Plus,
-    FileText,
-    Settings,
-    UserCircle,
-    CheckCircle2
-} from 'lucide-react';
-import { getAdminData, assignStudent, deleteStudent, getPassages, createPassage, deletePassage, deleteSession, clearAllSessions } from '../services/api';
+import Users from 'lucide-react/dist/esm/icons/users';
+import BookOpen from 'lucide-react/dist/esm/icons/book-open';
+import History from 'lucide-react/dist/esm/icons/history';
+import UserPlus from 'lucide-react/dist/esm/icons/user-plus';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2';
+import MoreVertical from 'lucide-react/dist/esm/icons/more-vertical';
+import Clock from 'lucide-react/dist/esm/icons/clock';
+import Target from 'lucide-react/dist/esm/icons/target';
+import LogOut from 'lucide-react/dist/esm/icons/log-out';
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
+import Plus from 'lucide-react/dist/esm/icons/plus';
+import FileText from 'lucide-react/dist/esm/icons/file-text';
+import Settings from 'lucide-react/dist/esm/icons/settings';
+import UserCircle from 'lucide-react/dist/esm/icons/user-circle';
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2';
+import { getAdminData, assignStudent, deleteStudent, getPassages, createPassage, deletePassage, deleteSession, clearAllSessions, getGradingMode, setGradingMode as setGradingModeApi } from '../services/api';
 import './TeacherDashboard.css';
 
 const TeacherDashboard = ({ onLogout }) => {
@@ -28,7 +26,7 @@ const TeacherDashboard = ({ onLogout }) => {
     const [showAddPassage, setShowAddPassage] = useState(false);
     const [newPassageTitle, setNewPassageTitle] = useState('');
     const [newPassageContent, setNewPassageContent] = useState('');
-    const [gradingMode, setGradingMode] = useState(localStorage.getItem('vg_grading_mode') || 'FULL'); // CORE | FULL
+    const [gradingMode, setGradingMode] = useState(getGradingMode()); // CORE | FULL
 
     const fetchData = async (showLoading = true) => {
         if (showLoading) setIsLoading(true);
@@ -110,7 +108,7 @@ const TeacherDashboard = ({ onLogout }) => {
 
     const handleGradingModeChange = (mode) => {
         setGradingMode(mode);
-        localStorage.setItem('vg_grading_mode', mode);
+        setGradingModeApi(mode);
     };
 
     const handleDeleteSession = async (sessionId) => {

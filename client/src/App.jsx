@@ -13,7 +13,8 @@ import {
   saveProgress,
   getStoredSessionId,
   storeSessionId,
-  clearStoredSession
+  clearStoredSession,
+  setGradingMode
 } from './services/api';
 import './App.css';
 
@@ -38,7 +39,7 @@ function App() {
           // 세션 복원: 분석 데이터 다시 가져오기
           const data = await analyzePassage(session.passage_text);
           if (session.mode) {
-            localStorage.setItem('vg_grading_mode', session.mode);
+            setGradingMode(session.mode);
           }
           setPassageData(data);
           setSessionId(storedId);

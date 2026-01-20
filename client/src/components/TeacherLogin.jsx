@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Lock, LogIn, ChevronLeft } from 'lucide-react';
+import Lock from 'lucide-react/dist/esm/icons/lock';
+import LogIn from 'lucide-react/dist/esm/icons/log-in';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 import { adminLogin } from '../services/api';
 import './TeacherLogin.css';
 

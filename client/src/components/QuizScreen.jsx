@@ -1,7 +1,12 @@
-import { Check, ArrowRight, ArrowLeft, RefreshCw, AlertCircle } from 'lucide-react';
+import Check from 'lucide-react/dist/esm/icons/check';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left';
+import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
+import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import { QuizStep } from '../context/QuizContext';
 import { useQuiz } from '../hooks/useQuiz';
-import { BookOpen } from 'lucide-react';
+import BookOpen from 'lucide-react/dist/esm/icons/book-open';
+import { getGradingMode } from '../services/api';
 import toast from 'react-hot-toast';
 import GrammarGuideModal from './GrammarGuideModal';
 import { useState } from 'react';
@@ -40,8 +45,8 @@ const QuizScreen = (props) => {
         return sent.key.subjectSpan || [];
     };
 
-    // v1.1.2: 채점 모드 가져오기
-    const gradingMode = localStorage.getItem('vg_grading_mode') || 'FULL';
+    // v1.1.2: 채점 모드 가져오기 (캐싱된 값 사용)
+    const gradingMode = getGradingMode();
 
     const handleModeClick = () => {
         if (gradingMode === 'CORE') {
@@ -131,8 +136,7 @@ const QuizScreen = (props) => {
                                             tokenClass += ' solved-root';
                                         }
 
-                                        // v1.1.2: 채점 모드에 따른 힌트(밑줄) 표시
-                                        const gradingMode = localStorage.getItem('vg_grading_mode') || 'FULL';
+                                        // v1.1.2: 채점 모드에 따른 힌트(밑줄) 표시 (컴포넌트 상단에서 캐싱된 값 사용)
                                         // 기초(CORE) 모드에서만 핵심 주어 밑줄 표시, 심화(FULL) 모드에서는 힌트 제거
                                         const isHintVisible = gradingMode === 'CORE' && subjects.includes(token.id);
 

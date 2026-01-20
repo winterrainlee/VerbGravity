@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, BookOpen } from 'lucide-react';
+import X from 'lucide-react/dist/esm/icons/x';
+import BookOpen from 'lucide-react/dist/esm/icons/book-open';
 import './GrammarGuideModal.css';
 
 const GrammarGuideModal = ({ isOpen, onClose }) => {

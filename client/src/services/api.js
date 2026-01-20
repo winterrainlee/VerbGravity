@@ -89,6 +89,7 @@ export async function saveProgress(sessionId, progress) {
 
 // LocalStorage helpers
 const SESSION_KEY = 'verbgravity_session_id';
+const GRADING_MODE_KEY = 'vg_grading_mode';
 
 export function getStoredSessionId() {
     return localStorage.getItem(SESSION_KEY);
@@ -100,6 +101,29 @@ export function storeSessionId(sessionId) {
 
 export function clearStoredSession() {
     localStorage.removeItem(SESSION_KEY);
+}
+
+// Grading Mode helpers with in-memory cache
+let gradingModeCache = null;
+
+/**
+ * Get grading mode from cache or localStorage
+ * @returns {'CORE' | 'FULL'} The current grading mode
+ */
+export function getGradingMode() {
+    if (gradingModeCache === null) {
+        gradingModeCache = localStorage.getItem(GRADING_MODE_KEY) || 'FULL';
+    }
+    return gradingModeCache;
+}
+
+/**
+ * Set grading mode and update cache
+ * @param {'CORE' | 'FULL'} mode - The grading mode to set
+ */
+export function setGradingMode(mode) {
+    gradingModeCache = mode;
+    localStorage.setItem(GRADING_MODE_KEY, mode);
 }
 
 /**

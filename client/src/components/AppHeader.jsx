@@ -1,4 +1,4 @@
-import { LogIn } from 'lucide-react';
+import LogIn from 'lucide-react/dist/esm/icons/log-in';
 import './AppHeader.css';
 
 const AppHeader = ({ onLoginClick, onLogoClick }) => {

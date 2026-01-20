@@ -13,7 +13,7 @@ description: 작업 완료(PR) 자동화 (테스트, PR 초안, 교훈 기록)
 
 ## 2단계: PR 초안 파일 생성
 1. 현재 날짜와 기능명을 포함한 파일명으로 PR 초안을 생성합니다.
-   - 경로: `docs/03-logs/pr/pr-vX.Y-{기능명}.md`
+   - 경로: `docs/logs/pr/pr-vX.Y-{기능명}.md`
    - **PR 템플릿**:
      ```markdown
      # PR: [기능명] 구현

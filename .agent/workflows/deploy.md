@@ -23,7 +23,7 @@ description: 배포 전 체크리스트 및 배포 절차 실행
    - `layout-vX.Y.md`: UI/UX 변경 시 (파일이 없으면 새로 생성)
 
 ## 3단계: 릴리즈 노트 작성
-1. `docs/release-notes-vX.Y.Z.md` 파일을 생성합니다.
+1. `docs/logs/release/release-notes-vX.Y.Z.md` 파일을 생성합니다.
 2. 이번 버전의 주요 변경 사항(Feature, Bug Fix, UX Improvements)을 요약하여 작성합니다.
 
 ## 4단계: 최종 병합 및 태깅 (Merge & Tag)

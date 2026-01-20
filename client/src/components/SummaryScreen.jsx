@@ -1,4 +1,8 @@
-import { Trophy, RotateCcw, CheckCircle, XCircle, Target } from 'lucide-react';
+import Trophy from 'lucide-react/dist/esm/icons/trophy';
+import RotateCcw from 'lucide-react/dist/esm/icons/rotate-ccw';
+import CheckCircle from 'lucide-react/dist/esm/icons/check-circle';
+import XCircle from 'lucide-react/dist/esm/icons/x-circle';
+import Target from 'lucide-react/dist/esm/icons/target';
 import { useQuizContext } from '../context/QuizContext';
 import './SummaryScreen.css';
 

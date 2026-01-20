@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Play, BookOpen } from 'lucide-react';
-import { getPassages } from '../services/api';
+import Play from 'lucide-react/dist/esm/icons/play';
+import BookOpen from 'lucide-react/dist/esm/icons/book-open';
+import { getPassages, getGradingMode } from '../services/api';
 import './StartScreen.css';
 
 const MAX_CHARS = 2000;
@@ -33,7 +34,7 @@ const StartScreen = ({ onStart, isLoading }) => {
 
     const handleSubmit = () => {
         if (isValid && !isLoading) {
-            const mode = localStorage.getItem('vg_grading_mode') || 'FULL';
+            const mode = getGradingMode();
             onStart(passage, mode);
         }
     };
